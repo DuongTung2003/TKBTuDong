@@ -6,9 +6,6 @@ ctypes.windll.user32.SystemParametersInfoW(20,0,ABSOLUTE_BASE_PATH,0)
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-import tkinter as tk
-from tkinter.filedialog import askopenfilename
-from tkinter import messagebox,ttk
 import logging
 from datetime import datetime,timedelta,time,date
 import os
@@ -134,7 +131,10 @@ class Main():
                  self.Login()
              continue
         GlobalVariable.UserData_check = True
-
+    def unique_list(self,l):
+        ulist = []
+        [ulist.append(x) for x in l if x not in ulist]
+        return ulist
     def GetUserData(self):
         
         Key = None
@@ -180,6 +180,7 @@ class Main():
                      Console.Log("Checking..",start_t)
                      if exec_time >= start_t and  exec_time <= end_t:
                         Console.Log("In session")
+                        next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
                         return 1,end_t,next_P_location
 
                      elif (next_P - exec_time) > (start_t - exec_time) and exec_time < end_t:
@@ -264,11 +265,14 @@ class Main():
             Cursor_Y = int(height*((Y+2)/len(GlobalVariable.DSTiet)))
         p_list_max =0
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
-        tietTiepTheo_Str = "Tiết tiếp theo: "+ self.DataTable['Tên học phần'][IDTiethoc] +"              Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute)+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
+        st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
+        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"              Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute)+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
         if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
-            tietTiepTheo_Str += "  Giáo viên: "+self.DataTable['Giáo viên'][IDTiethoc].astype('string')
+            tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
+            tietTiepTheo_Str += "  Giáo viên: "+ tenGV
         if type(self.DataTable['Phòng học'][IDTiethoc]) is str:
-            tietTiepTheo_Str += "  Phòng học: "+self.DataTable['Phòng học'][IDTiethoc].astype('string')
+            tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][IDTiethoc].split(" ")))
+            tietTiepTheo_Str += "  Phòng học: "+tenLOP
         TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
         #p_list_max += 1
         out = Image.alpha_composite(BG, Overlay)
