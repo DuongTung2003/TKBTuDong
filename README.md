@@ -40,6 +40,6 @@ shell:startup
 Tạo shortcut của _TKB.cmd_ vào thư mục hiện lên
  
 
-Email tác giả: [Gmail]
+Tác giả: [Facebook]
 
-[Gmail]: <duongdoantung2k3@gmail.com>
+[Facebook]: <https://www.facebook.com/duongdoan.tung.56>
