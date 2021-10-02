@@ -1,5 +1,5 @@
-# TKBTuDong
-##Tự động cập nhật thời khóa biểu của UNISOFT và hiển thị lên desktop theo thời gian thực
+# TKB Tự động
+## Tự động cập nhật thời khóa biểu của UNISOFT và hiển thị lên desktop theo thời gian thực
 
 Để chạy chương trình dùng lệnh:
 
@@ -7,12 +7,12 @@
 python TKBTuDong.py
 ```
 
-##Lưu ý:
+### Lưu ý:
 - Thay đổi biến _ABSOLUTE_BASE_PATH_ tới vị trí ảnh gốc
 - Thay đổi biến _Cord[x,y]_ sẽ thay đổi vị trí của TKB trên ảnh
 
 
-##Một số ví dụ:
+### Một số ví dụ:
 [Ảnh gốc: ](https://www.pixiv.net/en/artworks/87054415)
 ![Ảnh gốc](https://github.com/DuongTung2003/TKBTuDong/blob/master/sample.jpg?raw=true)
 
@@ -40,5 +40,6 @@ shell:startup
 Tạo shortcut của _TKB.cmd_ vào thư mục hiện lên
  
 
-Email tác giả: ![duongdoantung2k3@gmail.com](duongdoantung2k3@gmail.com)
+Email tác giả: [Gmail]
 
+[Gmail]: <duongdoantung2k3@gmail.com>
