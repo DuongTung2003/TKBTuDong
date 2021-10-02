@@ -23,7 +23,7 @@ Hình nền sau khi chạy chương trình:
 Nếu tiết tiếp theo nằm trong ngày thì sẽ hiện màu xanh:
 ![Trong ngày](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/CoTietHomnay.png?raw=true)
 
-Nếu hôm nay không có tiết nào hoặc đã học hết số tiết thì sẽ hiện màu trắng,
+Nếu hôm nay không có tiết nào hoặc đã học hết tiết cuối cùng trong ngày thì sẽ hiện màu trắng,
 còn ngày tiếp theo có tiết sẽ hiện màu vàng:
 ![Hết tiết](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/tietHomTiepTheo.png?raw=true)
 
