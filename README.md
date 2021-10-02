@@ -31,7 +31,7 @@ Tính từ thời điểm chạy chương trình nếu đang trong tiết thì s
 ![Trong tiết](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/Dangtrongtiet.png?raw=true)
 
 
-Để chạy chương trình tại startup:
+### Để chạy chương trình tại startup:
 
 Mở hộp thoại _Run_ nhập 
 ```sh
