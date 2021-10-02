@@ -1,0 +1,446 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head id="Head2"><title>
+	Phần mềm quản lý đào tạo tín chỉ UniSoft - Thiên An
+</title><meta id="Meta1" name="KEYWORDS" content="Phần mềm quản lý đào tạo tín chỉ"><link href="/favicon.ico" rel="shortcut icon" type="image/x-icon"><link href="/css/UniPortal.css" rel="stylesheet"><link href="/css/bootstrap.css" rel="stylesheet"><link href="/css/head.css" rel="stylesheet">
+    <script language="javascript">
+        function OpenWindows() {
+            var WinSettings = "'location=1, left=100,top=10,width=900,height=700,toolbar=1,resizable=0'"
+            // ALTER BELOW LINE - supply correct URL for Child Form
+            window.open("wfrmDangKyLopTinChiB3In.aspx", "KetQuaDangKy", WinSettings);
+        }
+    </script>
+</head>
+<body style="background-color:white">
+    <form name="form2" method="post" action="./wfrmDangKyLopTinChiB3.aspx" id="form2">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__LASTFOCUS" id="__LASTFOCUS" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form2'];
+if (!theForm) {
+    theForm = document.form2;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="A8A7C799">
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdABDqqtOFRuXRcXjiNxC/d6umVuRk9ONp5qeKHQpDMYbgH0G3H3Ai0srIPjvW0C29AZUkO5bWVptvuBkGN1aZhqmmPRbcxOobzdsNq+tEdYxn3vD0HS9kOvhhiM/lAnDQCg1gabbv2Nsw3VGchhf17NiZ0HuLRVR5F6yISCV5fBhRQAodLGEXDQpRpRbBSO8bK4ETkZFp1QxidKk/1whk8TapZQEZNKZBDtD1+gF4fUc/F3Mt5MISJ6tp2C2JSj7tgBYYP6aY10WXSExNNW/nZv3WSMMIHefozvRcUFfU2s4aVMvF8ZgIdsZ8DTVFjBPHrJYFeV68xLPszmmO2/PEhx6tl17aPiQkxF7gUfudx3rlLgjb2Z3flcqcFmWLbg8IgJI=">
+</div>         
+       <div id="siteWrapper">
+           <div class="row">
+                
+<div id="header">
+<div class="top-head cb">
+    <div class="container-fluid">
+        <a id="right-menu" class="active iconmenu" href="#sidr-right"></a>
+        <div id="logo" class="logo">
+            <div id="HeaderSV1_logopane">
+                <div class="khungAnh"><a class="khungAnhCrop0" href="#" title=""><img src="/Images/banner_left.png"> </a></div>
+            </div>
+        </div>
+        <div class="bg-menu-top" id="menuright">
+            <ul class="menu">
+                 
+<div>
+
+    <div id="HeaderSV1_LoginPanel2_pnlLogout" class="cssLogin">
+	
+     <b> |</b>
+    <a id="HeaderSV1_LoginPanel2_lnkMessageInbox" href="forum/MessageInbox.aspx">Hộp thư <b>( 0 )<b></b></b></a><b><b> |
+    <a id="HeaderSV1_LoginPanel2_lnkChangePassWord" href="/ChangePassword.aspx">Đổi mật khẩu</a> | 
+    <a id="HeaderSV1_LoginPanel2_lnkLogout" href="/logout.aspx">Đăng xuất</a>
+</b></b></div><b><b>
+    </b></b></div><b><b>
+			</b></b></ul><b><b>
+        </b></b></div><b><b>
+    </b></b></div><b><b>
+</b></b></div><b><b>
+<div>
+	<div>
+        <div id="navigation" style="width: 100%">                
+            <ul style="width:100%">
+                <li><a href="/SinhVien.aspx" id="Home"><i class="glyphicon glyphicon-home" style="padding-right:5px"></i>TRANG CHỦ</a></li>              
+                <li><a href="/help/HuongDanSuDungDangKyHoc.htm" target="_blank" id="DangKy"><i class="glyphicon glyphicon-question-sign" style="padding-right:5px"></i><span>HƯỚNG DẪN ĐĂNG KÝ</span></a></li>       
+                <li><a href="/Forum/Forumhome.aspx" id="A2" target="_blank"><i class="glyphicon glyphicon-user" style="padding-right:5px"></i><span>DIỄN ĐÀN</span></a></li>	
+            </ul>                
+        </div>
+	</div>
+</div>
+</b></b></div><b><b>
+
+            </b></b></div><b><b>
+             <div class="row">
+                   <div class="col-md-2">
+   
+<style media="screen" type="text/css">
+    .thumbnail {
+    display: block;
+    padding: 2px;
+    margin-bottom: 5px;
+    line-height: 1.2;
+    text-align: left;
+    background-color: #fff;
+    border: 0px solid;
+    border-radius: 0px;
+    height:100%;
+}
+body{
+   background-color:#f2f2f2;
+}
+
+/* Profile container */
+.profile {
+  /*margin: 2px 0px 0px 0px;*/
+  background-color:#f2f2f2;
+  height:100%;
+}
+
+/* Profile sidebar */
+.profile-sidebar {  
+  padding: 2px 0 2px 0;
+ /*background-color:#f2f2f2;*/
+ /*height:100%;*/
+}
+
+.profile-userpic img {
+  float: none;
+  margin: 0 auto;  
+  width: 100px;
+  height: 120px;   
+  padding-top:5px;
+  -webkit-border-radius: 50% !important;
+  -moz-border-radius: 50% !important;
+  border-radius: 50% !important;
+}
+
+.profile-usertitle {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.profile-usertitle-name {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.profile-usertitle-job {
+  text-transform: uppercase;
+  color: #5b9bd1;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.profile-userbuttons {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.profile-userbuttons .btn {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 4px;
+  margin-right: 5px;
+}
+
+.profile-userbuttons .btn:last-child {
+  margin-right: 0px;
+}
+    
+.profile-usermenu {
+  margin-top: 4px;
+  /*background-color:#f2f2f2;*/
+  /*height:100%;*/
+}
+
+.profile-usermenu ul li {
+  border-bottom: 1px solid #f0f4f7;
+ 
+}
+
+.profile-usermenu ul li:last-child {
+  border-bottom: none;
+}
+
+.profile-usermenu ul li a {
+  color: #444444;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5em;
+}
+
+.profile-usermenu ul li a i {
+  margin-right: 8px;
+  font-size: 14px;
+    line-height: 1.5em;
+}
+
+.profile-usermenu ul li a:hover {
+  background-color: #29a329;
+  color: #ffffff;
+}
+
+.profile-usermenu ul li.active {
+  border-bottom: none;
+}
+
+.profile-usermenu ul li.active a {
+  color: #ffffff;
+  background-color: #29a329;
+  border-left: 2px solid #5b9bd1;
+ /*margin-right: 8px;*/
+}
+
+/* Profile Content */
+.profile-content {
+  /*padding: 10px;
+  background: #fff;
+  min-height: 460px;*/
+}
+
+</style>
+
+<div class="thumbnail1">
+    <div class="row profile">
+			<div class="profile-sidebar">
+				<!-- SIDEBAR USERPIC -->
+				<div class="profile-userpic" style="text-align:center">					
+                    <a href="/UpdateThongTinCaNhan.aspx"><img src="\Images\no_avatar.png" id="nav1_image_ulr"></a>
+				</div>
+				<!-- END SIDEBAR USERPIC -->
+				<!-- SIDEBAR USER TITLE -->
+				<div class="profile-usertitle">
+					<div class="profile-usertitle-job">
+						<span id="nav1_lblHo_ten">Dương Doãn Tùng</span>
+					</div>
+					<div class="profile-usertitle-job">
+						<span id="nav1_lblMa_sv">21010294</span>
+					</div>
+				</div>
+				<!-- END SIDEBAR USER TITLE -->
+				<!-- SIDEBAR BUTTONS -->
+                
+				<!-- END SIDEBAR BUTTONS -->
+				<!-- SIDEBAR MENU -->
+				<div class="profile-usermenu">
+					<ul class="nav">
+                        <li>
+                            <a href="/wfrmHoSoSinhVien.aspx" id="A4"><i class="glyphicon glyphicon-user"></i>SƠ YẾU LÝ LỊCH</a>
+						</li>
+						<li>
+                            <a href="/ChuongTrinhDaoTaoSinhVien.aspx" id="CTDT"><i class="glyphicon glyphicon-list-alt"></i>CHƯƠNG TRÌNH ĐÀOTẠO</a>
+						</li>
+                        <li>
+                            <a href="/KetQuaXulyHocvu.aspx" id="A2"><i class="glyphicon glyphicon-alert"></i>CẢNH BÁO HỌC VỤ</a>
+						</li>
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="/wfrmDangKyLopTinChiB1.aspx?Chuyen_nganh=1" id="DangKy"><i class="glyphicon glyphicon-tags"></i>ĐĂNG KÝ HỌC<span class="caret"></span></a> 
+                            <ul class="nav1">
+                                <li><a href="/wfrmDangKyLopTinChiB1.aspx" id="A7"><i class="glyphicon glyphicon-plus"></i>Đăng ký môn học tín chỉ</a></li>
+                                <li><a href="/wfrmDangKyLopTinChiB1.aspx?Dang_ky_hoc_lai_cai_thien_diem=1" id="A12"><i class="glyphicon glyphicon-off"></i>Đ.Ký học lại &amp; cải thiện</a> </li>
+                                 <li><a href="/wfrmDangKyThiCaiThienDiem.aspx?Chuyen_nganh=1" id="A6"><i class="glyphicon glyphicon-ok"></i>Đ.ký thi cải thiên điểm</a> </li>
+                                <li><a href="/KetQuaDangKy.aspx" id="A9"><i class="glyphicon glyphicon-th-list"></i>Lớp học phần đã đ.ký</a></li>
+                                 <li><a href="/wfrmDangKyHocNganh2.aspx" id="A8"><i class="glyphicon glyphicon-pencil"></i>Đăng ký học ngành 2</a></li>	   
+                                <li><a href="/wfrmDangKyXetTotNghiep.aspx" id="A14"><i class="glyphicon glyphicon-pencil"></i>Đăng ký xét tốt nghiệp</a></li>                             
+                            </ul>	
+                        </li>
+                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="/HocPhiThanhToanTrucTuyen.aspx" id="HOCPHI_THANHTOAN"><i class="glyphicon glyphicon-shopping-cart"></i>THANH TOÁN HỌC PHÍ<span class="caret"></span></a> 
+                           <ul class="nav1">                    
+                                <li><a href="/HocPhiThanhToanTrucTuyen.aspx" id="HOCPHI_THANHTOAN2"><i class="glyphicon glyphicon-phone"></i>Thanh toán Online</a></li>
+                                <li><a href="/HocPhiLichSuGiaoDich.aspx" id="HOCPHI_LICHSUGIAODICH"><i class="glyphicon glyphicon-dashboard"></i>Lịch sử giao dịch</a></li>	                                
+                            </ul>	
+                        </li>
+                         <li>
+                             <a href="/ThongTinTaiChinh.aspx" id="A3"><i class="glyphicon glyphicon-usd"></i>XEM HỌC PHÍ</a>
+						</li>
+                        <li>
+                            <a href="/wfrmDangKyLopTinChiB3.aspx" id="LichHoc"><i class="glyphicon glyphicon-calendar"></i>XEM LỊCH HỌC</a>
+						</li>
+                         <li>
+                             <a href="/ThongTinLichThi.aspx" id="LichThi"><i class="glyphicon glyphicon-file"></i>XEM LỊCH THI</a>
+						</li>
+                        <li>
+                            <a href="/KetQuaHocTap.aspx" id="A1"><i class="glyphicon glyphicon-heart"></i>XEM ĐIỂM HỌC TẬP</a>
+						</li>
+                        <li>
+                            <a href="/KetQuaRenLuyen.aspx" id="A5"><i class="glyphicon glyphicon-pencil"></i>XEM ĐIỂM RÈN LUYỆN</a>
+						</li>
+                        <li>
+                            <a href="/ThongTinKhenThuongKyLuatHocBong.aspx" id="A15"><i class="glyphicon glyphicon-screenshot"></i>XEM KHEN THƯỞNG, KỶ LUẬT</a>
+						</li>
+                        <li>
+                            <a href="http://localhost:91/Students/danhgia" id="A11"><i class="glyphicon glyphicon-ok-sign"></i>ĐÁNH GIÁ GIẢNG VIÊN</a>
+						</li>
+                         <li>
+                         <a href="/GuiYkien.aspx" id="A10"><i class="glyphicon glyphicon-send"></i>GỬI Ý KIẾN</a>
+						</li>
+                        <li><a href="/UpdateThongTinCaNhan.aspx" id="A13"><i class="glyphicon glyphicon-save"></i>SỬA TT CÁ NHÂN</a></li>    
+						
+						<li><a href="/wfrmDangKyDichVuOnline.aspx" id="A1331"><i class="glyphicon glyphicon-fire"></i>ĐĂNG KÝ DỊCH VỤ ONLINE</a></li>
+                        <li><a href="/DiemDanhTrenLopSinhVien.aspx" id="A131"><i class="glyphicon glyphicon-ok"></i>XEM ĐIỂM DANH ONLINE</a></li>
+                        <li><a href="/ThongTinThucTapTotNghiep.aspx" id="ThucTap"><i class="glyphicon glyphicon-fire"></i>XEM THÔNG TIN THỰC TẬP</a></li>
+                       	
+                     
+					</ul>
+				</div>
+				<!-- END MENU -->
+			</div>
+		</div>		
+</div>
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+    //    var string = document.location.pathname.replace('/Package Name/', '');
+    //    $('ul.nav > li > a[href="' + string + '"]').parent().addClass('active');
+    //});
+    //$(document).ready(function () {
+    //    $('.nav li a').click(function (e) {
+
+    //        $('.nav li.active').removeClass('active');
+
+    //        var $parent = $(this).parent();
+    //        $parent.addClass('active');
+    //        //e.preventDefault();
+    //            var url = window.location;
+    //            // Will only work if string in href matches with location
+    //            $('ul.nav a[href="' + url + '"]').parent().addClass('active');
+    //    });
+    //});
+    //$(document).ready(function () {
+    //    var url = window.location;
+    //    // Will only work if string in href matches with location
+    //    $('ul.nav a[href="' + url + '"]').parent().addClass('active');
+
+    //    // Will also work for relative and absolute hrefs
+    //    $('ul.nav a').filter(function () {
+    //        return this.href == url;
+    //    }).parent().addClass('active').parent().parent().addClass('active');
+    //});
+</script>
+
+
+</div>
+                  <div class="col-md-10" style="background-color:white">
+                     <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; height: 100%">
+                  
+            <tbody><tr><td align="center" style="width: 100%; height: 25px">
+                <span id="lblHead" style="display:inline-block;color:#05233B;background-color:Transparent;border-color:Transparent;font-family:Arial;font-size:Medium;font-weight:bold;height:25px;width:100%;"></span></td></tr> 
+            <tr>
+                <td align="center" style="width: 100%; height: 22px">
+                    <span style="font-family: Arial">
+                    <span id="Label1">Học kỳ đăng ký:</span></span>
+                    <select name="cmbKy_dang_ky" onchange="javascript:setTimeout('__doPostBack(\'cmbKy_dang_ky\',\'\')', 0)" id="cmbKy_dang_ky" style="width:250px;">
+	<option selected="selected" value="12">Đợt 1 Học kỳ 1 Năm học 2021-2022</option>
+	<option value="10">Đợt 1 Học kỳ 2 Năm học 2020-2021</option>
+	<option value="11">Đợt 2 Học kỳ 2 Năm học 2020-2021</option>
+	<option value="8">Đợt 1 Học kỳ 1 Năm học 2020-2021</option>
+	<option value="9">Đợt 2 Học kỳ 1 Năm học 2020-2021</option>
+	<option value="7">Đợt 1 Học kỳ 2 Năm học 2019-2020</option>
+	<option value="3">Đợt 1 Học kỳ 1 Năm học 2019-2020</option>
+	<option value="4">Đợt 2 Học kỳ 1 Năm học 2019-2020</option>
+	<option value="5">Đợt 3 Học kỳ 1 Năm học 2019-2020</option>
+	<option value="6">Đợt 4 Học kỳ 1 Năm học 2019-2020</option>
+	<option value="1">Đợt 1 Học kỳ 2 Năm học 2018-2019</option>
+	<option value="2">Đợt 2 Học kỳ 2 Năm học 2018-2019</option>
+
+</select></td>
+            </tr>
+            <tr>
+                <td style="width: 100%">                    
+        <table style="width: 100%" border="0" cellpadding="0" cellspacing="0">  
+            <tbody><tr>
+                <td style="width: 100%; height: 22px" colspan="2">
+                    <table border="0" cellpadding="1" cellspacing="1" style="width: 100%" bgcolor="#336699">                    
+                        <tbody><tr>
+                            <td style="width: 30%; height: 19px" align="left">
+                                <span id="Label2">Số học phần đã đăng ký:</span><span id="lblSo_mon" style="font-family:Arial;font-size:Small;font-weight:bold;">2</span><strong></strong></td>
+                            <td style="width: 30%; height: 19px" align="center">
+                                <span id="Label3">Tổng số tín chỉ đã đăng ký</span><span id="lblSo_tin_chi" style="font-family:Arial;font-size:Small;font-weight:bold;">3</span><strong></strong></td>
+                            <td style="width: 40%; height: 19px" align="right">
+                                <span id="Label4">Tổng số tiền dự kiến nộp</span><span id="lblSo_tien_nop" style="font-family:Arial;font-size:Small;font-weight:bold;"></span></td>
+                        </tr>
+                    </tbody></table>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; height: 22px" colspan="2">
+                
+                <div>
+	<table class="GridViewStyle" cellspacing="0" cellpadding="4" rules="all" border="1" id="grdViewLopDangKy" style="width:100%;border-collapse:collapse;">
+		<tbody><tr class="HeaderStyle">
+			<th scope="col">Tính chất môn học</th><th scope="col">Mã học phần</th><th scope="col">Tên học phần</th><th scope="col">Số tín chỉ</th><th scope="col">Hệ số</th><th scope="col">Tên lớp tín chỉ</th><th scope="col">Ca học</th><th scope="col">Lịch học</th><th scope="col">Giáo viên</th><th scope="col">Phòng học</th><th scope="col">Số tiền học phí (dự kiến)</th><th scope="col">Cố vấn duyệt</th>
+		</tr><tr class="RowStyle">
+			<td align="center" valign="middle" rowspan="2" style="width:8%;">Học bình thường ngành 1</td><td align="center" valign="middle" style="width:7%;">BS11012</td><td valign="middle" style="width:20%;">Giáo dục thể chất 1</td><td align="center" valign="middle" style="width:3%;">1</td><td align="center" style="width:2%;">1</td><td valign="middle" style="width:12%;">Giáo dục thể chất 1_1.2(15.1.2).8_LT</td><td align="center" valign="bottom" style="width:4%;">Chiều <br> Chiều <br> Sáng</td><td align="center" valign="middle" style="width:12%;">27/09/21-31/10/21<br><b><i>Thứ 3(T6-7)</i></b><br><b><i>Thứ 5(T6-7)</i></b><br><b><i>Thứ 6(T4-5)</i></b><br></td><td valign="bottom" style="width:7%;">Nguyễn Thị Điểm <br> Nguyễn Thị Điểm <br> Nguyễn Thị Điểm</td><td align="center" valign="bottom" style="width:5%;">&nbsp;</td><td align="right" valign="middle" style="width:7%;">0</td><td align="center" style="width:5%;">                                    
+                                    <span disabled="disabled"><input id="grdViewLopDangKy_ctl02_chk" type="checkbox" name="grdViewLopDangKy$ctl02$chk" checked="checked" disabled="disabled"></span>
+                                                     
+                                </td>
+		</tr><tr class="AltRowStyle">
+			<td align="center" valign="middle" style="width:7%;">BS11003</td><td valign="middle" style="width:20%;">Pháp luật đại cương</td><td align="center" valign="middle" style="width:3%;">2</td><td align="center" style="width:2%;">1</td><td valign="middle" style="width:12%;">Pháp luật đại cương_1_2(15.1.2).8_LT</td><td align="center" valign="bottom" style="width:4%;">Chiều <br> Sáng <br> Chiều</td><td align="center" valign="middle" style="width:12%;">27/09/21-31/10/21<br><b><i>Thứ 2(T9-10)</i></b><br><b><i>Thứ 3(T4-5)</i></b><br><b><i>Thứ 6(T9-10)</i></b><br></td><td valign="bottom" style="width:7%;">&nbsp;</td><td align="center" valign="bottom" style="width:5%;">&nbsp;</td><td align="right" valign="middle" style="width:7%;">0</td><td align="center" style="width:5%;">                                    
+                                    <span disabled="disabled"><input id="grdViewLopDangKy_ctl03_chk" type="checkbox" name="grdViewLopDangKy$ctl03$chk" checked="checked" disabled="disabled"></span>
+                                                     
+                                </td>
+		</tr>
+	</tbody></table>
+</div>
+                
+                </td>
+            </tr>
+            <tr><td align="right" valign="bottom" colspan="2" style="height:30px">            
+             <button class="btn btn-success" onclick="OpenWindows()" type="button"><span id="Label5">In kết quả đăng ký</span></button></td></tr>
+            <tr>
+                <td align="left" colspan="2">
+                    </td>
+            </tr>
+            <tr>
+                <td align="left" colspan="2" style="height: 19px">
+                    <span id="lblGhi_chu_noi_dung" style="font-family:Times New Roman;font-size:Medium;"></span></td>
+            </tr>
+        </tbody></table>        
+                </td>
+            </tr>
+          
+        </tbody></table>
+                </div>
+             </div>
+           <div class="row">
+                
+<div class="pageFooter">
+    <div class="row">
+        <div class="col-md-2" style="vertical-align:middle">
+            <a href="http://thienan.vn" style="border-style:none;"><img src="/images/logo_thienan.jpg" border="0"></a>
+        </div>
+        <div class="col-md-8">
+            <div class="col-xs-12 hidden visible-md visible-lg visible-xl">
+                Copyright ©2014 Trường Đại học Phenikaa<br>
+                Phần mềm Quản lý đào tạo UniSoft 6.0 phát triển bởi <a href="http://thienan.vn" style=" border-style:none">Thiên An</a> 
+            </div>
+        </div>
+         <div class="col-md-2">
+             <div class="col-xs-12 hidden visible-md visible-lg visible-xl">
+                 Sinh viên Online: 12<br>
+                Khách Online: 14
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </b></b></div><b><b>
+    
+
+</b></b></form></body></html>
