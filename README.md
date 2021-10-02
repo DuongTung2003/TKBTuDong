@@ -17,7 +17,7 @@ python TKBTuDong.py
 ![Ảnh gốc](https://github.com/DuongTung2003/TKBTuDong/blob/master/sample.jpg?raw=true)
 
 Hình nền sau khi chạy chương trình:
-![Ảnh TKB](https://github.com/DuongTung2003/TKBTuDong/blob/master/Screenshot.png?raw=true)
+![Ảnh TKB](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/Screenshot.png?raw=true)
 
 
 Nếu tiết tiếp theo nằm trong ngày thì sẽ hiện màu xanh:
