@@ -45,6 +45,6 @@ shell:startup
 Tạo shortcut của _TKB.cmd_ vào thư mục hiện lên
  
 
-Tác giả: [Facebook]
+Liên hệ tác giả qua: [Facebook]
 
 [Facebook]: <https://www.facebook.com/duongdoan.tung.56>
