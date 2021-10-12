@@ -10,9 +10,14 @@ python TKBTuDong.py
 ### Lưu ý:
 - Thay đổi biến _ABSOLUTE_BASE_PATH_ tới vị trí ảnh gốc
 - Thay đổi biến _Cord[x,y]_ sẽ thay đổi vị trí của TKB trên ảnh
+- Liên hệ tác giả qua FB ở cuối trang để được hướng dẫn chi tiết ^^
 
 
 ### Một số ví dụ:
+Sự kiện được tạo trên Google calendar:
+![Google calendar](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/GoogleCalendarExample.png?raw=true)
+![Windows Calendar](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/CalendarExample?raw=true)
+
 [Ảnh gốc: ](https://www.pixiv.net/en/artworks/87054415)
 ![Ảnh gốc](https://github.com/DuongTung2003/TKBTuDong/blob/master/sample.jpg?raw=true)
 
