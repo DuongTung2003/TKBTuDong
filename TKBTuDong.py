@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import logging
 from datetime import datetime,timedelta,time,date
+from win10toast import ToastNotifier
 import os
 import math
 from PIL import Image, ImageDraw, ImageFont
@@ -17,6 +18,7 @@ import codecs
 from cryptography.fernet import Fernet
 from time import sleep
 import urllib3
+from GoogleCalendar import Calendar
 try:
     os.mkdir("./LogFiles/")
 except :
@@ -29,7 +31,9 @@ class GlobalVariable():
     KeyFiles = "UserKey.enc"
     UserDataFile = "UserData.enc"
     BackGroundFile = "./sample.jpg"
+    GoogleCalendarIDsFile = "GoogleCalendarIDs.txt"
     Font = "calibril.ttf"
+    GoogleCalendarDeleteEventTime = 7
     ABSOLUTE_OUTPUT_PATH = "\\output.png"
     LoginURL = 'https://qldt.phenikaa-uni.edu.vn/Login.aspx'
     LichHocURL = 'https://qldt.phenikaa-uni.edu.vn/wfrmDangKyLopTinChiB3.aspx'
@@ -39,10 +43,13 @@ class GlobalVariable():
     DSTiet = [ "Tiết "+str(t_) for t_ in range(1,13) ]
     SoNgayHienThi = 7
     width, height = 2400,1200 #TABLE
-    Cord = [-40,1200]
+    Cord = [-200,1200]
     XuongDong = 10
     TextAlpha = 200
     LineThickness = 2
+    CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
+    internet_connected = True
+
 class Tiet(): #Tiet trong ngay
     def __init__(self,tiet = 0, ID_mon = "",Thu = 0):
         self.tiet = tiet
@@ -80,8 +87,9 @@ class Main():
             http = urllib3.PoolManager()
             r = http.request('GET',GlobalVariable.LoginURL )
         except: 
-            Console.Log("Can't connect to internet")
+            Console.Error("Can't connect to internet")
             self.PageSource = codecs.open("./pageBackup.html","r","utf-8").read()
+            GlobalVariable.internet_connected = False
         else:
             opts = Options()
             opts.set_headless() 
@@ -99,9 +107,21 @@ class Main():
             with codecs.open("pageBackup.html","w+","utf-8") as f:
                 f.write(str(self.PageSource))
                 f.close()
+            GlobalVariable.internet_connected = True
         self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grdViewLopDangKy'})[0]
+        Console.Log("Lay thong tin thanh cong")
+        Console.Log(self.DataTable)
+        Console.Log("Xu li du lieu...")
         self.DataProcess()
+        Console.Log("Xu li du lieu hoan tat")
+        Console.Log("Khoi tao bang...")
         self.CreateTable()
+        Console.Log("Hoan tat")
+        
+
+
+
+
     def Login(self):
         if self.UserID == "" or self.UserPassword == "":
             sleep(2)
@@ -166,6 +186,22 @@ class Main():
         exec_time = datetime.now()
         next_P = datetime(2200,10,10)
         next_P_location = []
+        try :
+            G_file = open(GlobalVariable.GoogleCalendarIDsFile,"r+")
+            G_dat = G_file.read().split("|\n|")
+        except:
+            Console.Warning("IDs file not found, creating...")
+            G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
+            G_dat = G_file.read().split("|\n|")
+        gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
+        if G_dat[0] != "" and GlobalVariable.internet_connected == True:
+            for data_ in G_dat:
+                ID = data_.split("|DT|")[0]
+                ev_time  = datetime.fromisoformat(data_.split("|DT|")[1])
+                if datetime.now() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
+                    Calendar.DeleteEvent(ID)
+                    Console.Log("Deleting event",ID)
+        G_data_to_write = ""
         for next_d in range(0,7):
           for thu in range(0,len(self.DanhSachTiet)):
             for tiet in range(0,len(self.DanhSachTiet[thu])):
@@ -178,6 +214,51 @@ class Main():
                     end_t = datetime.combine(date(exec_time.year,exec_time.month,exec_time.day) + timedelta(next_d),time(end_h[0],end_h[1]))
                     if start_t.weekday() == thu:
                      Console.Log("Checking..",start_t)
+                     #---------------Google calendar
+                     if (GlobalVariable.internet_connected == True):
+                         result = []
+                         if self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet]:
+                             gg_event_range[0] = start_t
+                         elif self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet] and  self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
+                             pass
+                         elif tiet == 0:
+                             tenGV = ""
+                             if type(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             if type(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             else:
+                                 tenLOP = "Online"
+                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and  tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,start_t.isoformat(),end_t.isoformat(),tenGV,tenLOP)
+                             Console.Log("created event")
+                             Console.Log("id: ", result_id)
+                             Console.Log("summary: ", result_sum)
+                             Console.Log("starts at: ", result_start)
+                             Console.Log("ends at: ", result_end)
+                             #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
+                             G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+                         elif self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
+                             gg_event_range[1] = end_t
+                             tenGV = ""
+                             if type(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             if type(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             else:
+                                 tenLOP = "Online"
+                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
+                             #Subject = "",desc = "",start = datetime(),end = datetime(),organizer = "",location = ''
+                             Console.Log("created event")
+                             Console.Log("id: ", result_id)
+                             Console.Log("summary: ", result_sum)
+                             Console.Log("starts at: ", result_start)
+                             Console.Log("ends at: ", result_end)
+                             #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
+                             G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+
+                         
                      if exec_time >= start_t and  exec_time <= end_t:
                         Console.Log("In session")
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
@@ -189,6 +270,9 @@ class Main():
                         next_P = start_t
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
+        G_file.write(G_data_to_write)
+        G_file.flush()
+        G_file.close()
         if next_P.day == exec_time.day:
             return 2, next_P,next_P_location
         else:
@@ -203,6 +287,7 @@ class Main():
             for i_ in range(0,len(GlobalVariable.ThoiGianBieu)+1):
                 t_tuan.append(-1)
             self.DanhSachTiet.append(t_tuan)
+        
         for STT in range(0,self.SoMonHoc):
             LH = self.DataTable['Lịch học'][STT]#.astype('string')
             EndDateStr = LH.split("-")[0][:str(LH).find("Th")]
@@ -214,7 +299,7 @@ class Main():
                     DStiet_ngay = [ t_ for t_ in range(DSTietgioihan_ngay[0],DSTietgioihan_ngay[1]+1)]
                     for tietTrongDSngay in DStiet_ngay:
                         self.DanhSachTiet[ThuTrongTuan[Thu]][tietTrongDSngay] = STT
-                       
+            Console.Log(ThuTrongTuan)       
     def CreateTable(self):
         BG = Image.open(GlobalVariable.BackGroundFile).convert("RGBA")
         Overlay = Image.new("RGBA", BG.size, (255,255,255,0))
@@ -237,7 +322,8 @@ class Main():
             TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill="#FFFFFF",width= GlobalVariable.LineThickness)
             for X in range(3,col):
                 if self.DanhSachTiet[X-3][Y-1] >= 0:
-                    raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[X-3][Y-1]] 
+                    raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[X-3][Y-1]]
+                    Console.Log("Cursor position: ", Cursor_X,Cursor_Y,raw_DataToWrite)
                 else:
                     raw_DataToWrite = ""
                 DataToWrite = raw_DataToWrite
@@ -263,10 +349,11 @@ class Main():
 
 
             Cursor_Y = int(height*((Y+2)/len(GlobalVariable.DSTiet)))
+            
         p_list_max =0
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
         st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
-        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"              Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute)+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
+        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"              Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
         if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
             tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
             tietTiepTheo_Str += "  Giáo viên: "+ tenGV
@@ -278,6 +365,8 @@ class Main():
         out = Image.alpha_composite(BG, Overlay)
         out.save(str(GlobalVariable.ABSOLUTE_OUTPUT_PATH[1:]))
         img_path = os.getcwd()+GlobalVariable.ABSOLUTE_OUTPUT_PATH
-        ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,0)
+        ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,1)
         
+
+
 Main()

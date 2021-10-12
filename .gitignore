@@ -9,11 +9,13 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.pickle
 __pycache__/
 LogFiles/
 build/
 Example_files
 Example.html
+client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -369,3 +371,7 @@ FodyWeavers.xsd
 Mau.xlsx
 file.t
 TKBTuDong.exe
+GoogleCalendarIDs.txt
+pageBackup.html
+pageBackup.html
+test.txt
