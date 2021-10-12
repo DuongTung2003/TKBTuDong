@@ -16,7 +16,8 @@ python TKBTuDong.py
 ### Một số ví dụ:
 Sự kiện được tạo trên Google calendar:
 ![Google calendar](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/GoogleCalendarExample.png?raw=true)
-![Windows Calendar](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/CalendarExample?raw=true)
+
+![Windows Calendar](https://github.com/DuongTung2003/TKBTuDong/blob/master/ExampleIMG/CalendarExample.png?raw=true)
 
 [Ảnh gốc: ](https://www.pixiv.net/en/artworks/87054415)
 ![Ảnh gốc](https://github.com/DuongTung2003/TKBTuDong/blob/master/sample.jpg?raw=true)
@@ -45,6 +46,6 @@ shell:startup
 Tạo shortcut của _TKB.cmd_ vào thư mục hiện lên
  
 
-Tác giả: [Facebook]
+Liên hệ tác giả qua: [Facebook]
 
 [Facebook]: <https://www.facebook.com/duongdoan.tung.56>
