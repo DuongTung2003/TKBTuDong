@@ -194,15 +194,19 @@ class Main():
             G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
             G_dat = G_file.read().split("|\n|")
         gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
+        added_events = []
+        G_data_to_write = G_file.read()
         if G_dat[0] != "" and GlobalVariable.internet_connected == True:
-            for data_ in G_dat:
+            for data_ in [a for a in G_dat if a != ""]:
                 ID = data_.split("|DT|")[0]
                 ev_time  = datetime.fromisoformat(data_.split("|DT|")[1])
-                if datetime.now() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
-                    Calendar.DeleteEvent(ID)
+                added_events.append(ev_time.isoformat())
+                if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
+                    Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
                     Console.Log("Deleting event",ID)
-        G_data_to_write = ""
-        for next_d in range(0,7):
+                    G_data_to_write.replace(ID+"|DT|"+data_.split("|DT|")[1]+"|\n|","")
+        
+        for next_d in range(0,GlobalVariable.SoNgayHienThi):
           for thu in range(0,len(self.DanhSachTiet)):
             for tiet in range(0,len(self.DanhSachTiet[thu])):
                 if self.DanhSachTiet[thu][tiet] >= 0:
@@ -213,10 +217,12 @@ class Main():
                     end_h = [ int(a) for a in tg_tiet[1].split("h")]
                     end_t = datetime.combine(date(exec_time.year,exec_time.month,exec_time.day) + timedelta(next_d),time(end_h[0],end_h[1]))
                     if start_t.weekday() == thu:
+
                      Console.Log("Checking..",start_t)
                      #---------------Google calendar
-                     if (GlobalVariable.internet_connected == True):
-                         result = []
+                     
+                     if (GlobalVariable.internet_connected == True  ):        
+                         
                          if self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet]:
                              gg_event_range[0] = start_t
                          elif self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet] and  self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
@@ -230,14 +236,15 @@ class Main():
                              else:
                                  tenLOP = "Online"
                              desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and  tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
-                             result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,start_t.isoformat(),end_t.isoformat(),tenGV,tenLOP)
-                             Console.Log("created event")
-                             Console.Log("id: ", result_id)
-                             Console.Log("summary: ", result_sum)
-                             Console.Log("starts at: ", result_start)
-                             Console.Log("ends at: ", result_end)
-                             #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
-                             G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+                             if ((gg_event_range[0].astimezone().isoformat()  in added_events) == False):
+                                 result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,start_t.isoformat(),end_t.isoformat(),tenGV,tenLOP)
+                                 Console.Log("created event")
+                                 Console.Log("id: ", result_id)
+                                 Console.Log("summary: ", result_sum)
+                                 Console.Log("starts at: ", result_start)
+                                 Console.Log("ends at: ", result_end)
+                                 #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
+                                 G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
                          elif self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
                              gg_event_range[1] = end_t
                              tenGV = ""
@@ -248,15 +255,16 @@ class Main():
                              else:
                                  tenLOP = "Online"
                              desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
-                             result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
-                             #Subject = "",desc = "",start = datetime(),end = datetime(),organizer = "",location = ''
-                             Console.Log("created event")
-                             Console.Log("id: ", result_id)
-                             Console.Log("summary: ", result_sum)
-                             Console.Log("starts at: ", result_start)
-                             Console.Log("ends at: ", result_end)
-                             #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
-                             G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+                             if ((gg_event_range[0].astimezone().isoformat()  in added_events) == False):
+                                 result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
+                                 #Subject = "",desc = "",start = datetime(),end = datetime(),organizer = "",location = ''
+                                 Console.Log("created event")
+                                 Console.Log("id: ", result_id)
+                                 Console.Log("summary: ", result_sum)
+                                 Console.Log("starts at: ", result_start)
+                                 Console.Log("ends at: ", result_end)
+                                 #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
+                                 G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
 
                          
                      if exec_time >= start_t and  exec_time <= end_t:
@@ -270,8 +278,9 @@ class Main():
                         next_P = start_t
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
-        G_file.write(G_data_to_write)
-        G_file.flush()
+        if len(G_data_to_write) > 1:
+            G_file.write(G_data_to_write)
+            G_file.flush()
         G_file.close()
         if next_P.day == exec_time.day:
             return 2, next_P,next_P_location

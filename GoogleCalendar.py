@@ -66,7 +66,7 @@ class Calendar():
        return event_result['id'],event_result['summary'],event_result['start']['dateTime'],event_result['end']['dateTime']
     def DeleteEvent(self,ID):
        # Delete the event
-       service = get_calendar_service()
+       service = self.get_calendar_service()
        try:
            service.events().delete(
                calendarId='primary',
