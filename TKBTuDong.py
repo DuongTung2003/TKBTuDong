@@ -200,6 +200,7 @@ class Main():
         added_events = []
         
         if G_dat[0] != "" and GlobalVariable.internet_connected == True:
+
             for data_ in [a for a in G_dat if a != ""]:
                 ID = data_.split("|DT|")[0]
                 ev_time  = datetime.fromisoformat(data_.split("|DT|")[1])
@@ -207,8 +208,11 @@ class Main():
                 if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
                     Console.Log("Deleting event",ID,datetime.now().astimezone(),ev_time,datetime.now().astimezone() - ev_time)
                     Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
+                    
                     Console.Log(data_ in G_data_to_write,G_data_to_write)
                     G_data_to_write = G_data_to_write.replace(data_,"")
+                    G_file.close()
+                    G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
                     G_file.write(G_data_to_write)
                     G_file.flush()
         
