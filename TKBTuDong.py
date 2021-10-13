@@ -44,7 +44,8 @@ class GlobalVariable():
     SoNgayHienThi = 7
     width, height = 2400,1200 #TABLE
     Cord = [-200,1200]
-    XuongDong = 10
+    XuongDong = 12
+    VietTat = XuongDong * 2
     TextAlpha = 200
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
@@ -188,23 +189,28 @@ class Main():
         next_P_location = []
         try :
             G_file = open(GlobalVariable.GoogleCalendarIDsFile,"r+")
-            G_dat = G_file.read().split("|\n|")
+            G_data_to_write = str(G_file.read())
+            G_dat = G_data_to_write.split("|\n|")
         except:
             Console.Warning("IDs file not found, creating...")
             G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
-            G_dat = G_file.read().split("|\n|")
+            G_data_to_write = str(G_file.read())
+            G_dat = G_data_to_write.split("|\n|")
         gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
         added_events = []
-        G_data_to_write = G_file.read()
+        
         if G_dat[0] != "" and GlobalVariable.internet_connected == True:
             for data_ in [a for a in G_dat if a != ""]:
                 ID = data_.split("|DT|")[0]
                 ev_time  = datetime.fromisoformat(data_.split("|DT|")[1])
                 added_events.append(ev_time.isoformat())
                 if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
+                    Console.Log("Deleting event",ID,datetime.now().astimezone(),ev_time,datetime.now().astimezone() - ev_time)
                     Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
-                    Console.Log("Deleting event",ID)
-                    G_data_to_write.replace(ID+"|DT|"+data_.split("|DT|")[1]+"|\n|","")
+                    Console.Log(data_ in G_data_to_write,G_data_to_write)
+                    G_data_to_write = G_data_to_write.replace(data_,"")
+                    G_file.write(G_data_to_write)
+                    G_file.flush()
         
         for next_d in range(0,GlobalVariable.SoNgayHienThi):
           for thu in range(0,len(self.DanhSachTiet)):
@@ -279,9 +285,12 @@ class Main():
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
         if len(G_data_to_write) > 1:
-            G_file.write(G_data_to_write)
-            G_file.flush()
-        G_file.close()
+            G_file.close()
+            G_file1 = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
+            G_file1.write(G_data_to_write)
+            Console.Log(G_data_to_write)
+            G_file1.close()
+        
         if next_P.day == exec_time.day:
             return 2, next_P,next_P_location
         else:
@@ -296,18 +305,30 @@ class Main():
             for i_ in range(0,len(GlobalVariable.ThoiGianBieu)+1):
                 t_tuan.append(-1)
             self.DanhSachTiet.append(t_tuan)
-        
+        DSngayHienThi = []
+        for count in range(0,GlobalVariable.SoNgayHienThi):
+            DSngayHienThi.append(datetime.now().date()+timedelta(count))
         for STT in range(0,self.SoMonHoc):
             LH = self.DataTable['Lịch học'][STT]#.astype('string')
-            EndDateStr = LH.split("-")[0][:str(LH).find("Th")]
+            StDateStr = LH.split("-")[0]
+            StDate = datetime.strptime(StDateStr,'%d/%m/%y')
+            EndDateStr = LH.split("-")[1][:str(LH.split("-")[1]).find("Th")]
             EndDate = datetime.strptime(EndDateStr,'%d/%m/%y')
             ThuTrongTuan = [ int(thu[:thu.find("(")]) - 2 for thu in LH.split("Thứ ")[1:]] #0-6
             Tiet_ = [ tiet_[:tiet_.find(")")] for tiet_ in LH.split("(T")[1:]  ] # 1-2
+            Console.Log(STT,Tiet_)
             for Thu in range(0,len(ThuTrongTuan)):
-                    DSTietgioihan_ngay = [int(t) for t in Tiet_[Thu].split("-")]
-                    DStiet_ngay = [ t_ for t_ in range(DSTietgioihan_ngay[0],DSTietgioihan_ngay[1]+1)]
-                    for tietTrongDSngay in DStiet_ngay:
-                        self.DanhSachTiet[ThuTrongTuan[Thu]][tietTrongDSngay] = STT
+                    check = False
+                    for ngay_trong_ds in DSngayHienThi:
+                        if ngay_trong_ds.weekday() == ThuTrongTuan[Thu]:
+                            if (ngay_trong_ds < StDate.date()) or (ngay_trong_ds > EndDate.date()):
+                                Console.Log("Not in range")
+                                check = True
+                    if check == False:
+                        DSTietgioihan_ngay = [int(t) for t in Tiet_[Thu].split("-")]
+                        DStiet_ngay = [ t_ for t_ in range(DSTietgioihan_ngay[0],DSTietgioihan_ngay[1]+1)]
+                        for tietTrongDSngay in DStiet_ngay:
+                            self.DanhSachTiet[ThuTrongTuan[Thu]][tietTrongDSngay] = STT
             Console.Log(ThuTrongTuan)       
     def CreateTable(self):
         BG = Image.open(GlobalVariable.BackGroundFile).convert("RGBA")
@@ -321,8 +342,9 @@ class Main():
         coTietHomNay,nx_Period,nx_Location = self.nextPeriod()
         IDTiethoc = self.DanhSachTiet[nx_Location[0]][nx_Location[1]]
         LineOffset =  int((height*(1/len(GlobalVariable.DSTiet)))/2)
+        self.BangVietTat = []
         #TableOverlay.rectangle([(GlobalVariable.Cord[0]+(width/9*nx_Location[0]),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))- LineOffset/2),     (GlobalVariable.Cord[0]+(width/9*nx_Location[0])+((width/9)*0.6),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))+ LineOffset/2)],None,"#e1ed00",GlobalVariable.width)
-        for Y in range(0,len(GlobalVariable.DSTiet)):
+        for Y in range(0,len(GlobalVariable.DSTiet) ):
             Cursor_X = int(width/9)
             
             TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.DSTiet[Y], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
@@ -330,21 +352,8 @@ class Main():
             TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.ThoiGianBieu[Y], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
             TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill="#FFFFFF",width= GlobalVariable.LineThickness)
             for X in range(3,col):
-                if self.DanhSachTiet[X-3][Y-1] >= 0:
-                    raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[X-3][Y-1]]
-                    Console.Log("Cursor position: ", Cursor_X,Cursor_Y,raw_DataToWrite)
-                else:
-                    raw_DataToWrite = ""
-                DataToWrite = raw_DataToWrite
-                tempCursor_Y  = Cursor_Y - (height/len(GlobalVariable.DSTiet)*2.3) if len(raw_DataToWrite) >= GlobalVariable.XuongDong else Cursor_Y
-                if len(raw_DataToWrite) >= GlobalVariable.XuongDong:
-                    for char in range(GlobalVariable.XuongDong,-1,-1):
-                        if raw_DataToWrite[char] == " ":
-                            DataToWrite = raw_DataToWrite[:char] + "\n" + raw_DataToWrite[char:]
-                            break
                 Cursor_X = int(width/9*X)
                 if  Y == 0:
-                    TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
                     TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]), GlobalVariable.Tuan[X-3], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
                     if nx_Location[0] != datetime.now().weekday() and nx_Location[0] == X-3:
                         TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill="#ffe600",width= GlobalVariable.LineThickness)
@@ -353,22 +362,50 @@ class Main():
                         lineColor = "#ffffff" if nx_Location[0] != datetime.now().weekday() else ("#fc0303"  if coTietHomNay == 1 else "#2200ff") 
                         TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
                         TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
-                else:
-                    TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
+               
 
 
             Cursor_Y = int(height*((Y+2)/len(GlobalVariable.DSTiet)))
             
         p_list_max =0
+        for t_0 in range(0,len(self.DanhSachTiet)):
+                baseY = int(height*((1)/len(GlobalVariable.DSTiet)))
+                for t_1 in range(0,len(self.DanhSachTiet[t_0])):
+                    if self.DanhSachTiet[t_0][t_1] >= 0:
+                      raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[t_0][t_1]]
+                      Cursor_Y =  baseY * t_1
+                      #if t_1 >= 9:
+                      #    Cursor_Y -= int(height*((2)/len(GlobalVariable.DSTiet)))
+                      tempCursor_Y  = Cursor_Y - baseY/3  if len(raw_DataToWrite) >= GlobalVariable.XuongDong and len(raw_DataToWrite) < GlobalVariable.VietTat else Cursor_Y
+                      DataToWrite = raw_DataToWrite
+                      if len(raw_DataToWrite) >= GlobalVariable.VietTat:
+                         UpcaseList = [a[0] for a in  raw_DataToWrite.split(" ") ]
+                         DataToWrite = ""
+                         
+                         for char_1 in UpcaseList:
+                             DataToWrite += char_1.upper()
+                         if [DataToWrite,raw_DataToWrite] not in self.BangVietTat:
+                            self.BangVietTat.append([DataToWrite,raw_DataToWrite])
+                      elif len(raw_DataToWrite) >= GlobalVariable.XuongDong:
+                        for char in range(GlobalVariable.XuongDong -1,-1,-1):
+                         if raw_DataToWrite[char] == " ":
+                            DataToWrite = raw_DataToWrite[:char] + "\n" + raw_DataToWrite[char:]
+                            break
+                      Cursor_X = int(width/9*(t_0+3))
+                      Console.Log("Test XY:",Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
+                      TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
         st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
-        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"              Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
+        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"      Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
         if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
             tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
             tietTiepTheo_Str += "  Giáo viên: "+ tenGV
         if type(self.DataTable['Phòng học'][IDTiethoc]) is str:
             tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][IDTiethoc].split(" ")))
             tietTiepTheo_Str += "  Phòng học: "+tenLOP
+        tietTiepTheo_Str += "\n"
+        for vt in self.BangVietTat:
+            tietTiepTheo_Str += "\n"+vt[0] + ": "+ vt[1]
         TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
         #p_list_max += 1
         out = Image.alpha_composite(BG, Overlay)
