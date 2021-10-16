@@ -1,8 +1,8 @@
 
 # CREDIT: DUONG TUNG AI&RB-K15 PKA
 import ctypes
-ABSOLUTE_BASE_PATH = 'D:\\2021-2022\\TKB\\TKBTuDong\\sample.jpg'
-ctypes.windll.user32.SystemParametersInfoW(20,0,ABSOLUTE_BASE_PATH,0)
+#ABSOLUTE_BASE_PATH = 'D:\\2021-2022\\TKB\\TKBTuDong\\sample.png'
+#ctypes.windll.user32.SystemParametersInfoW(20,0,ABSOLUTE_BASE_PATH,0)
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -11,6 +11,7 @@ from datetime import datetime,timedelta,time,date
 from win10toast import ToastNotifier
 import os
 import math
+import random
 from PIL import Image, ImageDraw, ImageFont
 import pandas as pd
 import base64
@@ -18,6 +19,7 @@ import codecs
 from cryptography.fernet import Fernet
 from time import sleep
 import urllib3
+import json
 from GoogleCalendar import Calendar
 try:
     os.mkdir("./LogFiles/")
@@ -28,9 +30,10 @@ logname =  "./LogFiles/Log_"+str(datetime.now().month) +"_"+ str(datetime.now().
 logging.basicConfig(filename=logname,format=format, level=logging.INFO,datefmt="%H:%M:%S")
 
 class GlobalVariable():
+    FORCE_INTERNET_OFF = False
     KeyFiles = "UserKey.enc"
     UserDataFile = "UserData.enc"
-    BackGroundFile = "./sample.jpg"
+    BackGroundFiles = "./Backgrounds/"
     GoogleCalendarIDsFile = "GoogleCalendarIDs.txt"
     Font = "calibril.ttf"
     GoogleCalendarDeleteEventTime = 7
@@ -47,6 +50,7 @@ class GlobalVariable():
     XuongDong = 12
     VietTat = XuongDong * 2
     TextAlpha = 200
+    TableColors = {"Text":[255,255,255,TextAlpha],"LineNormal":"#ffffff","LineToday":"#2200ff","LineInSession":"#fc0303","LineNext":"#ffe600"}
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
@@ -108,7 +112,7 @@ class Main():
             with codecs.open("pageBackup.html","w+","utf-8") as f:
                 f.write(str(self.PageSource))
                 f.close()
-            GlobalVariable.internet_connected = True
+            GlobalVariable.internet_connected = True if GlobalVariable.FORCE_INTERNET_OFF == False else False
         self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grdViewLopDangKy'})[0]
         Console.Log("Lay thong tin thanh cong")
         Console.Log(self.DataTable)
@@ -116,7 +120,8 @@ class Main():
         self.DataProcess()
         Console.Log("Xu li du lieu hoan tat")
         Console.Log("Khoi tao bang...")
-        self.CreateTable()
+        self.GetIMG()
+        
         Console.Log("Hoan tat")
         
 
@@ -333,9 +338,70 @@ class Main():
                         DStiet_ngay = [ t_ for t_ in range(DSTietgioihan_ngay[0],DSTietgioihan_ngay[1]+1)]
                         for tietTrongDSngay in DStiet_ngay:
                             self.DanhSachTiet[ThuTrongTuan[Thu]][tietTrongDSngay] = STT
-            Console.Log(ThuTrongTuan)       
+            Console.Log(ThuTrongTuan) 
+    def GetIMG(self):
+        BGFiles_name  = os.listdir(GlobalVariable.BackGroundFiles)
+        self.BGFile = random.choice(BGFiles_name)
+        try: 
+            configFile = open("PicturesConfiguation.cfg",'r')
+            configData = json.load(configFile)
+            configFile.close()
+        except:
+            configData = {}
+
+        for BGFile_ in BGFiles_name:
+           if configData.get(BGFile_,"") == "":
+             configured =False
+             while True:
+               Console.Error("Ảnh ",BGFile_,"chưa được cài đặt vị trí TKB,xin hãy nhập theo dạng x,y")
+               x,y = None,None
+               configData[BGFile_] = {}
+               while x== None and y == None:
+                   inp = input("\n>")
+                   try:
+                       x=int(inp.split(",")[0])
+                       y=int(inp.split(",")[1])
+                   except:
+                       Console.Error("Định dạng không hợp lệ")
+               Console.Log("Thêm thành công với x=",x,",y=",y,"vào ảnh",BGFile_)
+               configData[BGFile_]["Vi tri"] = [x,y]
+               rgba = [None,None,None,None]
+               Console.Log("Nhập màu chữ muốn hiển thị với dạng r,g,b,a")
+               while None in rgba:
+                    inp = input("\n>")
+                    if inp == "":
+                        break
+                    try:
+                        rgba= [int(userinp) for userinp in inp.split(",")]
+                        GlobalVariable.TableColors["Text"] = rgba
+                    except:
+                        Console.Error("Định dạng không hợp lệ")
+               
+               if inp != "":
+                for cor in GlobalVariable.TableColors:
+                   if cor != "Text":
+                       Console.Log("Nhập màu cho",cor,"với định dạng HEX (vd:#ffe600)")
+                       inp = input(">")
+                       if inp == "":
+                           Console.Log("Bỏ qua")
+                       elif inp[0]=="#":
+                           GlobalVariable.TableColors[cor] = inp
+               configData[BGFile_]["Colors"] = dict(GlobalVariable.TableColors)
+               Console.Log(configData[BGFile_])
+               GlobalVariable.Cord = [configData[BGFile_]["Vi tri"][0],configData[BGFile_]["Vi tri"][1]]
+               self.BGFile = BGFile_
+               self.CreateTable()
+               if (input("Confirm y/n?  ")) == "y":
+                   break
+        GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
+        GlobalVariable.TableColors = configData[self.BGFile]["Colors"]
+        configFile = open("PicturesConfiguation.cfg",'w+')
+        json.dump(configData,configFile )
+        configFile.close()
+        self.CreateTable()
     def CreateTable(self):
-        BG = Image.open(GlobalVariable.BackGroundFile).convert("RGBA")
+        baseSample = Image.open((GlobalVariable.BackGroundFiles + self.BGFile))
+        BG = baseSample.convert("RGBA")
         Overlay = Image.new("RGBA", BG.size, (255,255,255,0))
         TableOverlay = ImageDraw.Draw(Overlay)
         fnt = ImageFont.truetype(GlobalVariable.Font,45)
@@ -346,24 +412,25 @@ class Main():
         coTietHomNay,nx_Period,nx_Location = self.nextPeriod()
         IDTiethoc = self.DanhSachTiet[nx_Location[0]][nx_Location[1]]
         LineOffset =  int((height*(1/len(GlobalVariable.DSTiet)))/2)
+        textColor = (GlobalVariable.TableColors["Text"][0],GlobalVariable.TableColors["Text"][1],GlobalVariable.TableColors["Text"][2],GlobalVariable.TableColors["Text"][3])
         self.BangVietTat = []
         #TableOverlay.rectangle([(GlobalVariable.Cord[0]+(width/9*nx_Location[0]),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))- LineOffset/2),     (GlobalVariable.Cord[0]+(width/9*nx_Location[0])+((width/9)*0.6),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))+ LineOffset/2)],None,"#e1ed00",GlobalVariable.width)
         for Y in range(0,len(GlobalVariable.DSTiet) ):
             Cursor_X = int(width/9)
             
-            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.DSTiet[Y], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
+            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.DSTiet[Y], font=fnt, fill=textColor)
             Cursor_X = int(width/9*1.7)
-            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.ThoiGianBieu[Y], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
-            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill="#FFFFFF",width= GlobalVariable.LineThickness)
+            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.ThoiGianBieu[Y], font=fnt, fill=textColor)
+            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill=GlobalVariable.TableColors["LineNormal"],width= GlobalVariable.LineThickness)
             for X in range(3,col):
                 Cursor_X = int(width/9*X)
                 if  Y == 0:
-                    TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]), GlobalVariable.Tuan[X-3], font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
+                    TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]), GlobalVariable.Tuan[X-3], font=fnt, fill=textColor)
                     if nx_Location[0] != datetime.now().weekday() and nx_Location[0] == X-3:
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill="#ffe600",width= GlobalVariable.LineThickness)
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill="#ffe600",width= GlobalVariable.LineThickness)
+                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
+                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
                     elif  datetime.now().weekday() == X-3 and  datetime.now().weekday() < 6:
-                        lineColor = "#ffffff" if nx_Location[0] != datetime.now().weekday() else ("#fc0303"  if coTietHomNay == 1 else "#2200ff") 
+                        lineColor = GlobalVariable.TableColors["LineNormal"] if nx_Location[0] != datetime.now().weekday() else (GlobalVariable.TableColors["LineInSession"]  if coTietHomNay == 1 else GlobalVariable.TableColors["LineToday"]) 
                         TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
                         TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
                
@@ -397,7 +464,7 @@ class Main():
                             break
                       Cursor_X = int(width/9*(t_0+3))
                       Console.Log("Test XY:",Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
-                      TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
+                      TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=textColor)
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
         st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
         tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"      Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
@@ -410,7 +477,7 @@ class Main():
         tietTiepTheo_Str += "\n"
         for vt in self.BangVietTat:
             tietTiepTheo_Str += "\n"+vt[0] + ": "+ vt[1]
-        TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=(255,255,255,GlobalVariable.TextAlpha))
+        TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=textColor)
         #p_list_max += 1
         out = Image.alpha_composite(BG, Overlay)
         out.save(str(GlobalVariable.ABSOLUTE_OUTPUT_PATH[1:]))
