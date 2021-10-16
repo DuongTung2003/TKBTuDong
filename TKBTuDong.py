@@ -36,7 +36,7 @@ class GlobalVariable():
     BackGroundFiles = "./Backgrounds/"
     GoogleCalendarIDsFile = "GoogleCalendarIDs.txt"
     Font = "calibril.ttf"
-    GoogleCalendarDeleteEventTime = 7
+    GoogleCalendarDeleteEventTime = 2
     ABSOLUTE_OUTPUT_PATH = "\\output.png"
     LoginURL = 'https://qldt.phenikaa-uni.edu.vn/Login.aspx'
     LichHocURL = 'https://qldt.phenikaa-uni.edu.vn/wfrmDangKyLopTinChiB3.aspx'
@@ -192,34 +192,24 @@ class Main():
         exec_time = datetime.now()
         next_P = datetime(2200,10,10)
         next_P_location = []
-        try :
-            G_file = open(GlobalVariable.GoogleCalendarIDsFile,"r+")
-            G_data_to_write = str(G_file.read())
-            G_dat = G_data_to_write.split("|\n|")
+        try:
+            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,"r+")
+            newFile = False if GGFile.read() != "" else True
         except:
-            Console.Warning("IDs file not found, creating...")
-            G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
-            G_data_to_write = str(G_file.read())
-            G_dat = G_data_to_write.split("|\n|")
-        gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
-        added_events = []
-        
-        if G_dat[0] != "" and GlobalVariable.internet_connected == True:
+            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
+            newFile = True
 
-            for data_ in [a for a in G_dat if a != ""]:
-                ID = data_.split("|DT|")[0]
-                ev_time  = datetime.fromisoformat(data_.split("|DT|")[1])
-                added_events.append(ev_time.isoformat())
+        gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
+        jsonRead = dict()
+        if GlobalVariable.internet_connected == True and newFile == False:
+            jsonRead = dict(json.load(GGFile))
+            IDs = jsonRead.keys()
+            for ID in IDs:
+                ev_time  = datetime.fromisoformat(jsonRead[ID])
                 if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
                     Console.Log("Deleting event",ID,datetime.now().astimezone(),ev_time,datetime.now().astimezone() - ev_time)
                     Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
-                    
-                    Console.Log(data_ in G_data_to_write,G_data_to_write)
-                    G_data_to_write = G_data_to_write.replace(data_,"")
-                    G_file.close()
-                    G_file = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
-                    G_file.write(G_data_to_write)
-                    G_file.flush()
+                    jsonRead.pop(ID)
         
         for next_d in range(0,GlobalVariable.SoNgayHienThi):
           for thu in range(0,len(self.DanhSachTiet)):
@@ -251,7 +241,7 @@ class Main():
                              else:
                                  tenLOP = "Online"
                              desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and  tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
-                             if ((gg_event_range[0].astimezone().isoformat()  in added_events) == False):
+                             if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
                                  result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,start_t.isoformat(),end_t.isoformat(),tenGV,tenLOP)
                                  Console.Log("created event")
                                  Console.Log("id: ", result_id)
@@ -259,7 +249,7 @@ class Main():
                                  Console.Log("starts at: ", result_start)
                                  Console.Log("ends at: ", result_end)
                                  #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
-                                 G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+                                 jsonRead[str(result_id)] = result_start
                          elif self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
                              gg_event_range[1] = end_t
                              tenGV = ""
@@ -270,7 +260,8 @@ class Main():
                              else:
                                  tenLOP = "Online"
                              desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
-                             if ((gg_event_range[0].astimezone().isoformat()  in added_events) == False):
+                             if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
+
                                  result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
                                  #Subject = "",desc = "",start = datetime(),end = datetime(),organizer = "",location = ''
                                  Console.Log("created event")
@@ -279,7 +270,7 @@ class Main():
                                  Console.Log("starts at: ", result_start)
                                  Console.Log("ends at: ", result_end)
                                  #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
-                                 G_data_to_write += str(result_id)+"|DT|"+result_start+"|\n|"
+                                 jsonRead[str(result_id)] = result_start
 
                          
                      if exec_time >= start_t and  exec_time <= end_t:
@@ -293,13 +284,8 @@ class Main():
                         next_P = start_t
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
-        if len(G_data_to_write) > 1:
-            G_file.close()
-            G_file1 = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
-            G_file1.write(G_data_to_write)
-            Console.Log(G_data_to_write)
-            G_file1.close()
-        
+        json.dump(jsonRead,GGFile)
+        GGFile.close()
         if next_P.day == exec_time.day:
             return 2, next_P,next_P_location
         else:
@@ -343,7 +329,7 @@ class Main():
         BGFiles_name  = os.listdir(GlobalVariable.BackGroundFiles)
         self.BGFile = random.choice(BGFiles_name)
         try: 
-            configFile = open("PicturesConfiguation.cfg",'r')
+            configFile = open("PicturesConfiguation.json",'r')
             configData = json.load(configFile)
             configFile.close()
         except:
@@ -395,7 +381,7 @@ class Main():
                    break
         GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
         GlobalVariable.TableColors = configData[self.BGFile]["Colors"]
-        configFile = open("PicturesConfiguation.cfg",'w+')
+        configFile = open("PicturesConfiguation.json",'w+')
         json.dump(configData,configFile )
         configFile.close()
         self.CreateTable()

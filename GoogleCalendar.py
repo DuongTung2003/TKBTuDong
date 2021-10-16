@@ -50,9 +50,10 @@ class Calendar():
        print(end)
        print(organizer)
        print(location)
-       
-
-       event_result = service.events().insert(calendarId='primary',
+       Success = False
+       while Success == False:
+        try:
+         event_result = service.events().insert(calendarId='primary',
            body={
                "summary": Subject,
                "description": desc,
@@ -63,6 +64,9 @@ class Calendar():
 
   }
        ).execute()
+         Success = True
+        except:
+            print("Error! retrying..")
        time.sleep(0.5)
        return event_result['id'],event_result['summary'],event_result['start']['dateTime'],event_result['end']['dateTime']
     def DeleteEvent(self,ID):
