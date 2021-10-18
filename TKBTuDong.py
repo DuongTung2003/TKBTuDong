@@ -1,14 +1,14 @@
 
 # CREDIT: DUONG TUNG AI&RB-K15 PKA
+
+
+
 import ctypes
-#ABSOLUTE_BASE_PATH = 'D:\\2021-2022\\TKB\\TKBTuDong\\sample.png'
-#ctypes.windll.user32.SystemParametersInfoW(20,0,ABSOLUTE_BASE_PATH,0)
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import logging
 from datetime import datetime,timedelta,time,date
-from win10toast import ToastNotifier
 import os
 import math
 import random
@@ -29,7 +29,7 @@ format = "%(asctime)s: %(message)s"
 logname =  "./LogFiles/Log_"+str(datetime.now().month) +"_"+ str(datetime.now().day)+"_"+ str(datetime.now().hour)+"_"+ str(datetime.now().minute)+".log"
 logging.basicConfig(filename=logname,format=format, level=logging.INFO,datefmt="%H:%M:%S")
 
-class GlobalVariable():
+class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----------------------------------------
     FORCE_INTERNET_OFF = False
     KeyFiles = "UserKey.enc"
     UserDataFile = "UserData.enc"
@@ -54,7 +54,7 @@ class GlobalVariable():
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
-
+#------------------------------------------------------------------------------------------------
 class Tiet(): #Tiet trong ngay
     def __init__(self,tiet = 0, ID_mon = "",Thu = 0):
         self.tiet = tiet
@@ -97,9 +97,9 @@ class Main():
             GlobalVariable.internet_connected = False
         else:
             opts = Options()
-            opts.set_headless() 
-            assert opts.headless  # Operating in headless mode  options=opts
-            self.driver = webdriver.Chrome('D:\\2021-2022\\TKB\\TKBTuDong\\chromedriver.exe',options=opts)  # Optional argument, if not specified will search path.
+            opts.headless = True
+            #assert opts.headless  # Operating in headless mode  options=opts 
+            self.driver = webdriver.Chrome('.\chromedriver.exe',options=opts)  # Optional argument, if not specified will search path.
             #self.driver.execute(Command.SET_TIMEOUTS, {'ms': float(15 * 1000), 'type': 'page load'})
             self.Login()
             Console.Log("Dang nhap thanh cong")
@@ -156,7 +156,7 @@ class Main():
                  self.UserPassword = ""
                  self.Login()
              continue
-        GlobalVariable.UserData_check = True
+        
     def unique_list(self,l):
         ulist = []
         [ulist.append(x) for x in l if x not in ulist]
@@ -173,8 +173,10 @@ class Main():
                     self.UserID = Data.split("\n")[0]
                     self.UserPassword = Data.split("\n")[1]
                     Console.Log("Lay thong tin nguoi dung thanh cong")
+                    GlobalVariable.UserData_check = True
         except:
             Console.Error("File loi hoac khong tim thay file nguoi dung")
+            GlobalVariable.UserData_check = False
     def SaveUserData(self):
         with open(GlobalVariable.KeyFiles,"wb+") as  KeyFile:
             Key = Fernet.generate_key()
@@ -193,16 +195,16 @@ class Main():
         next_P = datetime(2200,10,10)
         next_P_location = []
         try:
-            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,"r+")
+            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'r+')
             newFile = False if GGFile.read() != "" else True
         except:
-            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,"w+")
+            GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'w+')
             newFile = True
 
         gg_event_range = [datetime(1900,1,1),datetime(1900,1,1)]
         jsonRead = dict()
         if GlobalVariable.internet_connected == True and newFile == False:
-            jsonRead = dict(json.load(GGFile))
+            jsonRead = json.load(open(GlobalVariable.GoogleCalendarIDsFile,'r'))
             IDs = jsonRead.keys()
             for ID in IDs:
                 ev_time  = datetime.fromisoformat(jsonRead[ID])
@@ -284,6 +286,7 @@ class Main():
                         next_P = start_t
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
+        GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'w+')
         json.dump(jsonRead,GGFile)
         GGFile.close()
         if next_P.day == exec_time.day:
