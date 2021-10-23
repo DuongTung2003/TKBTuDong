@@ -194,10 +194,11 @@ class Main():
         exec_time = datetime.now()
         next_P = datetime(2200,10,10)
         next_P_location = []
-        try:
+        if GlobalVariable.internet_connected == True:
+         try:
             GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'r+')
             newFile = False if GGFile.read() != "" else True
-        except:
+         except:
             GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'w+')
             newFile = True
 
@@ -211,6 +212,7 @@ class Main():
                 if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
                     Console.Log("Deleting event",ID,datetime.now().astimezone(),ev_time,datetime.now().astimezone() - ev_time)
                     Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
+                    jsonRead = jsonRead.copy()
                     jsonRead.pop(ID)
         
         for next_d in range(0,GlobalVariable.SoNgayHienThi):
@@ -286,9 +288,10 @@ class Main():
                         next_P = start_t
                         next_P_location = [self.DanhSachTiet.index(self.DanhSachTiet[thu]),tiet]
         Console.Log("Tiep theo la tiet",next_P_location)
-        GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'w+')
-        json.dump(jsonRead,GGFile)
-        GGFile.close()
+        if GlobalVariable.internet_connected == True:
+         GGFile = open(GlobalVariable.GoogleCalendarIDsFile,'w+')
+         json.dump(jsonRead,GGFile)
+         GGFile.close()
         if next_P.day == exec_time.day:
             return 2, next_P,next_P_location
         else:

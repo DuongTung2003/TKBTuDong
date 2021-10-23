@@ -1,6 +1,7 @@
 import datetime
 import pickle
 import os.path
+import os
 import googleapiclient
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -51,6 +52,7 @@ class Calendar():
        print(organizer)
        print(location)
        Success = False
+       ErrorCount = 0
        while Success == False:
         try:
          event_result = service.events().insert(calendarId='primary',
@@ -67,6 +69,11 @@ class Calendar():
          Success = True
         except:
             print("Error! retrying..")
+            ErrorCount += 1
+            if ErrorCount == 10:
+                print("Loi Tai Khoan Google! Xin dang nhap lai")
+                os.remove('token.pickle')
+                service = self.get_calendar_service()
        time.sleep(0.5)
        return event_result['id'],event_result['summary'],event_result['start']['dateTime'],event_result['end']['dateTime']
     def DeleteEvent(self,ID):
@@ -79,7 +86,8 @@ class Calendar():
            ).execute()
        except googleapiclient.errors.HttpError:
            print("Failed to delete event")
-       
-       print("Event deleted")
+       else:
+
+        print("Event deleted")
        time.sleep(0.5)
 
