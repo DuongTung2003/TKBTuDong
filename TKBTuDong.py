@@ -233,7 +233,11 @@ class Main():
                      if (GlobalVariable.internet_connected == True  ):        
                          
                          if self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet]:
-                             gg_event_range[0] = start_t
+                             if tiet != 0:
+                                if self.DanhSachTiet[thu][tiet -1] != self.DanhSachTiet[thu][tiet]:
+                                 gg_event_range[0] = start_t
+                             else:
+                                 gg_event_range[0] = start_t
                          elif self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet] and  self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
                              pass
                          elif tiet == 0:

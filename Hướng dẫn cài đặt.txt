@@ -1,0 +1,30 @@
+LƯU Ý: Liên hệ trước với tác giả để whitelist gmail
+
+I.CÀI ĐẶT
+
+1. Tải python 3.9  tại https://www.python.org/downloads/release/python-390/ (Kéo xuống dưới chọn bản executable installer)
+2. Tích vào include PATH, chọn install now và cài đặt
+3. Chạy file InstallLib.bat
+5. Chạy file TKB.bat và đăng nhập tài khoản sinh viên và tài khoản Google
+6. Xong!
+
+
+Có thể copy shortcut "Cập nhật TKB" ra màn hình chính để thuận tiện hơn
+
+
+II.TỰ ĐỘNG CẬP NHẬT KHI KHỞI ĐỘNG MÁY
+
+1. Bấm tổ hợp win + R nhập shell:startup
+2. Copy shortcut "Cập nhật TKB" vào thư mục vừa hiện lên
+
+III.HIỂN THỊ TKB LÊN HÌNH NỀN DESKTOP
+
+1. Mở file TKBTuDong.py kéo xuống dưới cùng xóa dấu # ở dòng #ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,1)
+2. Cho hình nền vào thư mục Backgrounds ( LƯU Ý: HÌNH NỀN PHẢI CÓ ĐỘ PHÂN GIẢI ĐÚNG 4767x2929)
+	- Có thể dùng file base.psd để căn đúng hoặc dùng một số app online
+3. Chạy file TKB.bat để chỉnh vị trí và màu khung, chữ
+
+
+IV. CHỈNH SỬA THÔNG SỐ KHÁC
+
+Có thể chỉnh một số thông số khác ở class GlobalVariable() trong file TKBTuDong.py
