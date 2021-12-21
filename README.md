@@ -1,5 +1,5 @@
 # TKB Tự động
-## Tự động cập nhật thời khóa biểu của UNISOFT và hiển thị lên desktop theo thời gian thực
+## Tự động cập nhật thời khóa biểu của Trường ĐH PHENIKAA và hiển thị lên desktop theo thời gian thực
 
 Để chạy chương trình dùng lệnh:
 
