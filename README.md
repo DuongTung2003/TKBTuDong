@@ -6,12 +6,18 @@
 ```sh
 python TKBTuDong.py
 ```
-
+### Các chức năng chính
+- Hiển thị thời khóa biểu lên hình nền máy tính
+- Thay đổi hình nền ngẫu nhiên với các hình nền trong thư mục Backgrounds
+- Tạo sự kiện các tiết học của 7 ngày tiếp theo lên Google Calendar
+- Nhắc trước tiết học 2 lần: trước 30 phút và 5 phút
+- Có thể chạy khi offline (chỉ thay đổi TKB trên hình nền) 
+- Tự do thay đổi màu, phông chữ, vị trí của TKB trên hình nền
+- Có thể cài đặt tự khởi chạy khi bật máy tính
 ### Lưu ý:
-- Thay đổi biến _ABSOLUTE_BASE_PATH_ tới vị trí ảnh gốc
-- Thay đổi biến _Cord[x,y]_ sẽ thay đổi vị trí của TKB trên ảnh
-- Liên hệ tác giả qua FB ở cuối trang để được hướng dẫn chi tiết ^^
-
+Google lịch giới hạn số người thử nghiệm ở 100 người nên liên hệ với tác giả qua Facebook hoặc Email để được sử dụng chức năng này!
+> Trường hợp muốn sử dụng riêng hình nền: mở file TKBSetting.cfg thay đổi 
+> FORCE_INTERNET_OFF = true
 
 ### Một số ví dụ:
 Sự kiện được tạo trên Google calendar:
