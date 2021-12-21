@@ -7,6 +7,7 @@ import ctypes
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 import logging
 from datetime import datetime,timedelta,time,date
 import os
@@ -21,6 +22,7 @@ from time import sleep
 import urllib3
 import json
 from GoogleCalendar import Calendar
+import configparser
 try:
     os.mkdir("./LogFiles/")
 except :
@@ -28,21 +30,29 @@ except :
 format = "%(asctime)s: %(message)s"
 logname =  "./LogFiles/Log_"+str(datetime.now().month) +"_"+ str(datetime.now().day)+"_"+ str(datetime.now().hour)+"_"+ str(datetime.now().minute)+".log"
 logging.basicConfig(filename=logname,format=format, level=logging.INFO,datefmt="%H:%M:%S")
-
+def Checkbool(ip):
+    return True if ip == "true" or ip == "True"else False
 class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----------------------------------------
+    TG1 = ["7h30 - 8h20","8h25 - 9h15","9h20 - 10h10","10h15 - 11h05","11h10 - 12h00","13h00 - 13h50","13h55 - 14h45","14h50 - 15h40","15h45 - 16h35","16h40 - 17h30","17h35 - 18h25","18h30 - 19h20"]
+    TG2 = ["6h45 - 7h35","7h40 - 8h30","8h35 - 9h25","9h30 - 10h20","10h25 - 11h15","11h20 - 12h10","13h00 - 13h50","13h55 - 14h45","14h50 - 15h40","15h45 - 16h35","16h40 - 17h30","17h35 - 18h25"]
+
     FORCE_INTERNET_OFF = False
     KeyFiles = "UserKey.enc"
     UserDataFile = "UserData.enc"
     BackGroundFiles = "./Backgrounds/"
     GoogleCalendarIDsFile = "GoogleCalendarIDs.txt"
     Font = "calibril.ttf"
-    GoogleCalendarDeleteEventTime = 2
+    GC_delete_after = 2
     ABSOLUTE_OUTPUT_PATH = "\\output.png"
     LoginURL = 'https://qldt.phenikaa-uni.edu.vn/Login.aspx'
-    LichHocURL = 'https://qldt.phenikaa-uni.edu.vn/wfrmDangKyLopTinChiB3.aspx'
+    LichHocURL = 'https://qldt.phenikaa-uni.edu.vn/KetQuaDangKy.aspx'
     UserData_check = False
     Tuan = ["Thứ 2","Thứ 3", "Thứ 4","Thứ 5","Thứ 6","Thứ 7"]
-    ThoiGianBieu = ["7h30 - 8h20","8h25 - 9h15","9h20 - 10h10","10h15 - 11h05","11h10 - 12h00","13h00 - 13h50","13h55 - 14h45","14h50 - 15h40","15h45 - 16h35","16h40 - 17h30","17h35 - 18h25","18h30 - 19h20"]
+    #------- THỜI GIAN VÀO LỚP---------- TG1 hoặc TG2
+    ThoiGianBieu = TG1
+    #------------------------------------------------
+    EnableBG = True
+    SELENIUM_HEADLESS = True
     DSTiet = [ "Tiết "+str(t_) for t_ in range(1,13) ]
     SoNgayHienThi = 7
     width, height = 2400,1200 #TABLE
@@ -54,6 +64,7 @@ class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
+
 #------------------------------------------------------------------------------------------------
 class Tiet(): #Tiet trong ngay
     def __init__(self,tiet = 0, ID_mon = "",Thu = 0):
@@ -61,7 +72,25 @@ class Tiet(): #Tiet trong ngay
         self.ID_mon = ID_mon 
         self.Thu = Thu
         Console.Log("Da them tiet",ID_mon,"Tiet so",tiet,"Vao thu",GlobalVariable.Tuan[Thu])
-
+def getConfiguration():
+    Console.Log("Dang lay cai dat tu TKBSetting.cfg")
+    try:
+        config = configparser.ConfigParser()
+        config.read('TKBSetting.cfg')
+        GlobalVariable.ThoiGianBieu = GlobalVariable.TG1 if  int(config['Thoi gian vao lop']['default']) == 0 else GlobalVariable.TG2
+        GlobalVariable.EnableBG = Checkbool(config['Cai dat hinh nen']['Enable'])
+        GlobalVariable.Font = config['Cai dat hinh nen']['Font']
+        GlobalVariable.GC_delete_after = int(config['Cai dat chung']['SO_NGAY_XOA_EVENT_GOOGLE_CALENDAR'])
+        GlobalVariable.SELENIUM_HEADLESS = Checkbool(config['Cai dat chung']['SELENIUM_HEADLESS'])
+        GlobalVariable.FORCE_INTERNET_OFF = config['Cai dat chung']['FORCE_INTERNET_OFF']
+        GlobalVariable.CREDENTIALS_FILE = config['Cai dat chung']['CREDENTIALS_FILE']
+        GlobalVariable.BackGroundFilesPath = config['Cai dat chung']['BackGroundFilesPath']
+        GlobalVariable.UserDataEncrypt = config['Cai dat chung']['UserDataEncrypt']
+        GlobalVariable.LoginURL = config['Cai dat chung']['LoginURL']
+        GlobalVariable.LichHocURL = config['Cai dat chung']['LichHocURL']
+        Console.Log("Cai dat thanh cong")
+    except:
+        Console.Error("Cai dat that bai!")
 class Console():
     def Log(*arg):
         msg = ""
@@ -85,6 +114,7 @@ class Console():
 class Main():
     
     def __init__(self):
+        getConfiguration()
         self.UserID = ""
         self.UserPassword = ""
         self.GetUserData()
@@ -97,7 +127,7 @@ class Main():
             GlobalVariable.internet_connected = False
         else:
             opts = Options()
-            opts.headless = True
+            opts.headless = GlobalVariable.SELENIUM_HEADLESS
             #assert opts.headless  # Operating in headless mode  options=opts 
             self.driver = webdriver.Chrome('.\chromedriver.exe',options=opts)  # Optional argument, if not specified will search path.
             #self.driver.execute(Command.SET_TIMEOUTS, {'ms': float(15 * 1000), 'type': 'page load'})
@@ -107,17 +137,22 @@ class Main():
                 if input("Ban co muon luu ten dang nhap va mat khau? y/n ").lower() == "y":
                     self.SaveUserData()
             self.driver.get(GlobalVariable.LichHocURL)
+            GlobalVariable.internet_connected = True if GlobalVariable.FORCE_INTERNET_OFF == False else False
             sleep(1)
             self.PageSource = self.driver.page_source
+                
+
+            self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
             with codecs.open("pageBackup.html","w+","utf-8") as f:
                 f.write(str(self.PageSource))
                 f.close()
-            GlobalVariable.internet_connected = True if GlobalVariable.FORCE_INTERNET_OFF == False else False
-        self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grdViewLopDangKy'})[0]
+            self.DataProcess()
+
+                
         Console.Log("Lay thong tin thanh cong")
         Console.Log(self.DataTable)
         Console.Log("Xu li du lieu...")
-        self.DataProcess()
+
         Console.Log("Xu li du lieu hoan tat")
         Console.Log("Khoi tao bang...")
         self.GetIMG()
@@ -175,7 +210,7 @@ class Main():
                     Console.Log("Lay thong tin nguoi dung thanh cong")
                     GlobalVariable.UserData_check = True
         except:
-            Console.Error("File loi hoac khong tim thay file nguoi dung")
+            Console.Error("Chua thiet lap thong tin dang nhap!")
             GlobalVariable.UserData_check = False
     def SaveUserData(self):
         with open(GlobalVariable.KeyFiles,"wb+") as  KeyFile:
@@ -209,7 +244,7 @@ class Main():
             IDs = jsonRead.keys()
             for ID in IDs:
                 ev_time  = datetime.fromisoformat(jsonRead[ID])
-                if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GoogleCalendarDeleteEventTime):
+                if datetime.now().astimezone() - ev_time >= timedelta(GlobalVariable.GC_delete_after):
                     Console.Log("Deleting event",ID,datetime.now().astimezone(),ev_time,datetime.now().astimezone() - ev_time)
                     Calendar(GlobalVariable.CREDENTIALS_FILE).DeleteEvent(ID)
                     jsonRead = jsonRead.copy()
@@ -237,7 +272,7 @@ class Main():
                                 if self.DanhSachTiet[thu][tiet -1] != self.DanhSachTiet[thu][tiet]:
                                  gg_event_range[0] = start_t
                              else:
-                                 gg_event_range[0] = start_t
+                                 pass
                          elif self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet] and  self.DanhSachTiet[thu][tiet - 1] == self.DanhSachTiet[thu][tiet]:
                              pass
                          elif tiet == 0:
@@ -459,7 +494,7 @@ class Main():
                             DataToWrite = raw_DataToWrite[:char] + "\n" + raw_DataToWrite[char:]
                             break
                       Cursor_X = int(width/9*(t_0+3))
-                      Console.Log("Test XY:",Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
+                      Console.Log(Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
                       TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=textColor)
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
         st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
@@ -475,10 +510,11 @@ class Main():
             tietTiepTheo_Str += "\n"+vt[0] + ": "+ vt[1]
         TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=textColor)
         #p_list_max += 1
-        out = Image.alpha_composite(BG, Overlay)
-        out.save(str(GlobalVariable.ABSOLUTE_OUTPUT_PATH[1:]))
-        img_path = os.getcwd()+GlobalVariable.ABSOLUTE_OUTPUT_PATH
-        ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,1)
+        if GlobalVariable.EnableBG == True:
+            out = Image.alpha_composite(BG, Overlay)
+            out.save(str(GlobalVariable.ABSOLUTE_OUTPUT_PATH[1:]))
+            img_path = os.getcwd()+GlobalVariable.ABSOLUTE_OUTPUT_PATH
+            ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,1)
         
 
 

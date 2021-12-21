@@ -13,8 +13,10 @@
 __pycache__/
 LogFiles/
 build/
+dist/
 Example_files
 Example.html
+token.json
 client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
