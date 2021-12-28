@@ -9,6 +9,8 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from datetime import datetime, timedelta
+import google.auth.transport.requests
+import requests
 import time
 # If modifying these scopes, delete the file token.json.
 class Calendar():
@@ -29,7 +31,16 @@ class Calendar():
        # If there are no (valid) credentials available, let the user log in.
        if not creds or not creds.valid:
            if creds and creds.expired and creds.refresh_token:
-               creds.refresh(Request())
+               request = google.auth.transport.requests.Request()
+               Fail = 0
+               while Fail < 3:
+                   try:
+                       creds.refresh(request)
+                   except :
+                       Fail += 1
+               if Fail > 2:
+                   flow = InstalledAppFlow.from_client_secrets_file(self.CREDENTIALS_FILE, SCOPES)
+                   creds = flow.run_local_server(port=0)
            else:
                flow = InstalledAppFlow.from_client_secrets_file(self.CREDENTIALS_FILE, SCOPES)
                creds = flow.run_local_server(port=0)

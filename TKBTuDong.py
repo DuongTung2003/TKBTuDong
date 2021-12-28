@@ -82,7 +82,7 @@ def getConfiguration():
         GlobalVariable.Font = config['Cai dat hinh nen']['Font']
         GlobalVariable.GC_delete_after = int(config['Cai dat chung']['SO_NGAY_XOA_EVENT_GOOGLE_CALENDAR'])
         GlobalVariable.SELENIUM_HEADLESS = Checkbool(config['Cai dat chung']['SELENIUM_HEADLESS'])
-        GlobalVariable.FORCE_INTERNET_OFF = config['Cai dat chung']['FORCE_INTERNET_OFF']
+        GlobalVariable.FORCE_INTERNET_OFF = Checkbool(config['Cai dat chung']['FORCE_INTERNET_OFF'])
         GlobalVariable.CREDENTIALS_FILE = config['Cai dat chung']['CREDENTIALS_FILE']
         GlobalVariable.BackGroundFilesPath = config['Cai dat chung']['BackGroundFilesPath']
         GlobalVariable.UserDataEncrypt = config['Cai dat chung']['UserDataEncrypt']
@@ -125,6 +125,8 @@ class Main():
             Console.Error("Can't connect to internet")
             self.PageSource = codecs.open("./pageBackup.html","r","utf-8").read()
             GlobalVariable.internet_connected = False
+            self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
+            self.DataProcess()
         else:
             opts = Options()
             opts.headless = GlobalVariable.SELENIUM_HEADLESS
