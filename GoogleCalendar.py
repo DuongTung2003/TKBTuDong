@@ -106,7 +106,7 @@ class Calendar():
            Success = True
            print("Event deleted")
            time.sleep(0.5)
-        except googleapiclient.errors.HttpError.error_details:
+        except :
             print("Failed to delete event")
             
         

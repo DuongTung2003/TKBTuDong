@@ -420,10 +420,11 @@ class Main():
                        elif inp[0]=="#":
                            GlobalVariable.TableColors[cor] = inp
                configData[BGFile_]["Colors"] = dict(GlobalVariable.TableColors)
-               Console.Log(configData[BGFile_])
+               
                GlobalVariable.Cord = [configData[BGFile_]["Vi tri"][0],configData[BGFile_]["Vi tri"][1]]
                self.BGFile = BGFile_
                self.CreateTable()
+               Console.Log(configData[BGFile_])
                if (input("Confirm y/n?  ")) == "y":
                    break
         GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
