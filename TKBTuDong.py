@@ -408,7 +408,7 @@ class Main():
                         rgba= [int(userinp) for userinp in inp.split(",")]
                         GlobalVariable.TableColors["Text"] = rgba
                     except:
-                        Console.Error("Định dạng không hợp lệ")
+                        Console.Error("Định dạng không hợp lệ") 
                
                if inp != "":
                 for cor in GlobalVariable.TableColors:
@@ -502,15 +502,18 @@ class Main():
         #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
         st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
         tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"      Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
-        if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
-            tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
-            tietTiepTheo_Str += "  Giáo viên: "+ tenGV
         if type(self.DataTable['Phòng học'][IDTiethoc]) is str:
             tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][IDTiethoc].split(" ")))
             tietTiepTheo_Str += "  Phòng học: "+tenLOP
-        tietTiepTheo_Str += "\n"
-        for vt in self.BangVietTat:
-            tietTiepTheo_Str += "\n"+vt[0] + ": "+ vt[1]
+        tietTiepTheo_Str += "\n\n"
+        if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
+            tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
+            tietTiepTheo_Str += "Giáo viên: "+ tenGV+"  "
+        if len(self.BangVietTat) > 0:
+            tietTiepTheo_Str += "|  "
+            for vt in self.BangVietTat:
+                tietTiepTheo_Str += vt[0] + ": "+ vt[1]+"\n"
+        
         TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=textColor)
         #p_list_max += 1
         if GlobalVariable.EnableBG == True:
