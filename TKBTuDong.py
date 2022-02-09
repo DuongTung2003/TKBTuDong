@@ -268,8 +268,31 @@ class Main():
                      #---------------Google calendar
                      
                      if (GlobalVariable.internet_connected == True  ):        
-                         
-                         if self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet]:
+                         if tiet + 1 == len(self.DanhSachTiet[thu]):
+                             if self.DanhSachTiet[thu][tiet - 1] != self.DanhSachTiet[thu][tiet]:
+                                gg_event_range[0] = start_t
+                             gg_event_range[1] = end_t
+                             tenGV = ""
+                             if type(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             if type(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]]) is str:
+                                 tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
+                             else:
+                                 tenLOP = "Online"
+                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
+
+                                 result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
+                                 #Subject = "",desc = "",start = datetime(),end = datetime(),organizer = "",location = ''
+                                 Console.Log("created event")
+                                 Console.Log("id: ", result_id)
+                                 Console.Log("summary: ", result_sum)
+                                 Console.Log("starts at: ", result_start)
+                                 Console.Log("ends at: ", result_end)
+                                 #result['id'],result['summary'],result['start']['dateTime'],result['end']['dateTime']
+                                 jsonRead[str(result_id)] = result_start
+
+                         elif self.DanhSachTiet[thu][tiet +1] == self.DanhSachTiet[thu][tiet]:
                              if tiet != 0:
                                 if self.DanhSachTiet[thu][tiet -1] != self.DanhSachTiet[thu][tiet]:
                                  gg_event_range[0] = start_t
@@ -444,78 +467,79 @@ class Main():
         Cursor_Y = int(height*((1)/len(GlobalVariable.DSTiet)))
         col = 9
         coTietHomNay,nx_Period,nx_Location = self.nextPeriod()
-        IDTiethoc = self.DanhSachTiet[nx_Location[0]][nx_Location[1]]
-        LineOffset =  int((height*(1/len(GlobalVariable.DSTiet)))/2)
-        textColor = (GlobalVariable.TableColors["Text"][0],GlobalVariable.TableColors["Text"][1],GlobalVariable.TableColors["Text"][2],GlobalVariable.TableColors["Text"][3])
-        self.BangVietTat = []
-        #TableOverlay.rectangle([(GlobalVariable.Cord[0]+(width/9*nx_Location[0]),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))- LineOffset/2),     (GlobalVariable.Cord[0]+(width/9*nx_Location[0])+((width/9)*0.6),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))+ LineOffset/2)],None,"#e1ed00",GlobalVariable.width)
-        for Y in range(0,len(GlobalVariable.DSTiet) ):
-            Cursor_X = int(width/9)
+        if nx_Location != []:
+            IDTiethoc = self.DanhSachTiet[nx_Location[0]][nx_Location[1]]
+            LineOffset =  int((height*(1/len(GlobalVariable.DSTiet)))/2)
+            textColor = (GlobalVariable.TableColors["Text"][0],GlobalVariable.TableColors["Text"][1],GlobalVariable.TableColors["Text"][2],GlobalVariable.TableColors["Text"][3])
+            self.BangVietTat = []
+            #TableOverlay.rectangle([(GlobalVariable.Cord[0]+(width/9*nx_Location[0]),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))- LineOffset/2),     (GlobalVariable.Cord[0]+(width/9*nx_Location[0])+((width/9)*0.6),GlobalVariable.Cord[1]+int(height*((nx_Location[1]+2)/len(GlobalVariable.DSTiet)))+ LineOffset/2)],None,"#e1ed00",GlobalVariable.width)
+            for Y in range(0,len(GlobalVariable.DSTiet) ):
+                Cursor_X = int(width/9)
             
-            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.DSTiet[Y], font=fnt, fill=textColor)
-            Cursor_X = int(width/9*1.7)
-            TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.ThoiGianBieu[Y], font=fnt, fill=textColor)
-            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill=GlobalVariable.TableColors["LineNormal"],width= GlobalVariable.LineThickness)
-            for X in range(3,col):
-                Cursor_X = int(width/9*X)
-                if  Y == 0:
-                    TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]), GlobalVariable.Tuan[X-3], font=fnt, fill=textColor)
-                    if nx_Location[0] != datetime.now().weekday() and nx_Location[0] == X-3:
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
-                    elif  datetime.now().weekday() == X-3 and  datetime.now().weekday() < 6:
-                        lineColor = GlobalVariable.TableColors["LineNormal"] if nx_Location[0] != datetime.now().weekday() else (GlobalVariable.TableColors["LineInSession"]  if coTietHomNay == 1 else GlobalVariable.TableColors["LineToday"]) 
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
-                        TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
+                TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.DSTiet[Y], font=fnt, fill=textColor)
+                Cursor_X = int(width/9*1.7)
+                TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]+Cursor_Y), GlobalVariable.ThoiGianBieu[Y], font=fnt, fill=textColor)
+                TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9),GlobalVariable.Cord[1]+Cursor_Y+ LineOffset),(GlobalVariable.Cord[0]+GlobalVariable.width-LineOffset*1.47,GlobalVariable.Cord[1]+Cursor_Y+LineOffset)],fill=GlobalVariable.TableColors["LineNormal"],width= GlobalVariable.LineThickness)
+                for X in range(3,col):
+                    Cursor_X = int(width/9*X)
+                    if  Y == 0:
+                        TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X,GlobalVariable.Cord[1]), GlobalVariable.Tuan[X-3], font=fnt, fill=textColor)
+                        if nx_Location[0] != datetime.now().weekday() and nx_Location[0] == X-3:
+                            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
+                            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=GlobalVariable.TableColors["LineNext"],width= GlobalVariable.LineThickness)
+                        elif  datetime.now().weekday() == X-3 and  datetime.now().weekday() < 6:
+                            lineColor = GlobalVariable.TableColors["LineNormal"] if nx_Location[0] != datetime.now().weekday() else (GlobalVariable.TableColors["LineInSession"]  if coTietHomNay == 1 else GlobalVariable.TableColors["LineToday"]) 
+                            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*X -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
+                            TableOverlay.line([(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1] ),(GlobalVariable.Cord[0]+int(width/9*(X+1) -(width/32) ),GlobalVariable.Cord[1]+height+LineOffset)],fill=lineColor,width= GlobalVariable.LineThickness)
                
 
 
-            Cursor_Y = int(height*((Y+2)/len(GlobalVariable.DSTiet)))
+                Cursor_Y = int(height*((Y+2)/len(GlobalVariable.DSTiet)))
             
-        p_list_max =0
-        for t_0 in range(0,len(self.DanhSachTiet)):
-                baseY = int(height*((1)/len(GlobalVariable.DSTiet)))
-                for t_1 in range(0,len(self.DanhSachTiet[t_0])):
-                    if self.DanhSachTiet[t_0][t_1] >= 0:
-                      raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[t_0][t_1]]
-                      Cursor_Y =  baseY * t_1
-                      #if t_1 >= 9:
-                      #    Cursor_Y -= int(height*((2)/len(GlobalVariable.DSTiet)))
-                      tempCursor_Y  = Cursor_Y - baseY/3  if len(raw_DataToWrite) >= GlobalVariable.XuongDong and len(raw_DataToWrite) < GlobalVariable.VietTat else Cursor_Y
-                      DataToWrite = raw_DataToWrite
-                      if len(raw_DataToWrite) >= GlobalVariable.VietTat:
-                         UpcaseList = [a[0] for a in  raw_DataToWrite.split(" ") ]
-                         DataToWrite = ""
+            p_list_max =0
+            for t_0 in range(0,len(self.DanhSachTiet)):
+                    baseY = int(height*((1)/len(GlobalVariable.DSTiet)))
+                    for t_1 in range(0,len(self.DanhSachTiet[t_0])):
+                        if self.DanhSachTiet[t_0][t_1] >= 0:
+                          raw_DataToWrite = self.DataTable['Tên học phần'][self.DanhSachTiet[t_0][t_1]]
+                          Cursor_Y =  baseY * t_1
+                          #if t_1 >= 9:
+                          #    Cursor_Y -= int(height*((2)/len(GlobalVariable.DSTiet)))
+                          tempCursor_Y  = Cursor_Y - baseY/3  if len(raw_DataToWrite) >= GlobalVariable.XuongDong and len(raw_DataToWrite) < GlobalVariable.VietTat else Cursor_Y
+                          DataToWrite = raw_DataToWrite
+                          if len(raw_DataToWrite) >= GlobalVariable.VietTat:
+                             UpcaseList = [a[0] for a in  raw_DataToWrite.split(" ") ]
+                             DataToWrite = ""
                          
-                         for char_1 in UpcaseList:
-                             DataToWrite += char_1.upper()
-                         if [DataToWrite,raw_DataToWrite] not in self.BangVietTat:
-                            self.BangVietTat.append([DataToWrite,raw_DataToWrite])
-                      elif len(raw_DataToWrite) >= GlobalVariable.XuongDong:
-                        for char in range(GlobalVariable.XuongDong -1,-1,-1):
-                         if raw_DataToWrite[char] == " ":
-                            DataToWrite = raw_DataToWrite[:char] + "\n" + raw_DataToWrite[char:]
-                            break
-                      Cursor_X = int(width/9*(t_0+3))
-                      Console.Log(Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
-                      TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=textColor)
-        #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
-        st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
-        tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"      Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
-        if type(self.DataTable['Phòng học'][IDTiethoc]) is str:
-            tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][IDTiethoc].split(" ")))
-            tietTiepTheo_Str += "  Phòng học: "+tenLOP
-        tietTiepTheo_Str += "\n\n"
-        if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
-            tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
-            tietTiepTheo_Str += "Giáo viên: "+ tenGV+"  "
-        if len(self.BangVietTat) > 0:
-            tietTiepTheo_Str += "|  "
-            for vt in self.BangVietTat:
-                tietTiepTheo_Str += vt[0] + ": "+ vt[1]+"\n"
+                             for char_1 in UpcaseList:
+                                 DataToWrite += char_1.upper()
+                             if [DataToWrite,raw_DataToWrite] not in self.BangVietTat:
+                                self.BangVietTat.append([DataToWrite,raw_DataToWrite])
+                          elif len(raw_DataToWrite) >= GlobalVariable.XuongDong:
+                            for char in range(GlobalVariable.XuongDong -1,-1,-1):
+                             if raw_DataToWrite[char] == " ":
+                                DataToWrite = raw_DataToWrite[:char] + "\n" + raw_DataToWrite[char:]
+                                break
+                          Cursor_X = int(width/9*(t_0+3))
+                          Console.Log(Cursor_X,Cursor_Y,tempCursor_Y,DataToWrite)
+                          TableOverlay.text((GlobalVariable.Cord[0]+Cursor_X - (width/9/4) ,GlobalVariable.Cord[1]+tempCursor_Y),DataToWrite, font=fnt, fill=textColor)
+            #for i in [ f for f in self.DanhSachTiet[nx_Location[0]] if f != -1]:
+            st_ = "Tiết tiếp theo: " if coTietHomNay != 1 else "Đang trong tiết: "
+            tietTiepTheo_Str = st_+ self.DataTable['Tên học phần'][IDTiethoc] +"      Thời gian "+str(nx_Period.hour)+"h"+str(nx_Period.minute if not nx_Period.minute < 10 else "0" +str(nx_Period.minute))+"  ngày "+str(nx_Period.day)+"/"+str(nx_Period.month)+"/"+str(nx_Period.year)
+            if type(self.DataTable['Phòng học'][IDTiethoc]) is str:
+                tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][IDTiethoc].split(" ")))
+                tietTiepTheo_Str += "  Phòng học: "+tenLOP
+            tietTiepTheo_Str += "\n\n"
+            if type(self.DataTable['Giáo viên'][IDTiethoc]) is str:
+                tenGV = ' '.join(self.unique_list(self.DataTable['Giáo viên'][IDTiethoc].split(" ")))
+                tietTiepTheo_Str += "Giáo viên: "+ tenGV+"  "
+            if len(self.BangVietTat) > 0:
+                tietTiepTheo_Str += "|  "
+                for vt in self.BangVietTat:
+                    tietTiepTheo_Str += vt[0] + ": "+ vt[1]+"\n"
         
-        TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=textColor)
-        #p_list_max += 1
+            TableOverlay.text((GlobalVariable.Cord[0]+ width*0.12,GlobalVariable.Cord[1]+height*(1.05+(p_list_max/20))),tietTiepTheo_Str, font=fnt, fill=textColor)
+            #p_list_max += 1
         if GlobalVariable.EnableBG == True:
             out = Image.alpha_composite(BG, Overlay)
             out.save(str(GlobalVariable.ABSOLUTE_OUTPUT_PATH[1:]))
