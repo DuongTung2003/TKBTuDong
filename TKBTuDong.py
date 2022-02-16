@@ -132,8 +132,12 @@ class Main():
             self.DataProcess()
         else:
             chromepath = '.\chromedriver.exe'
-            if GlobalVariable.CHROME_VERSION != chromedriver_autoinstaller.get_chrome_version():
-                chromepath = chromedriver_autoinstaller.install(cwd=True)
+            try:
+                if GlobalVariable.CHROME_VERSION != chromedriver_autoinstaller.get_chrome_version():
+                    chromepath = chromedriver_autoinstaller.install(cwd=True)
+            except:
+                Console.Error("Ban phai cai dat google chrome de co the su dung phan mem nay!")
+                input()
             opts = Options()
             opts.headless = GlobalVariable.SELENIUM_HEADLESS
             #assert opts.headless  # Operating in headless mode  options=opts 
