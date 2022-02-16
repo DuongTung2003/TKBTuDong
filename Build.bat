@@ -1,4 +1,4 @@
-pyinstaller TKBTuDong.py --icon=logo1.ico --name CapNhatTKB
+C:\Users\Admin\AppData\Roaming\Python\Python37\Scripts\pyinstaller.exe TKBTuDong.py --icon=logo1.ico --name CapNhatTKB
 copy calibril.ttf .\dist\CapNhatTKB\
 copy chromedriver.exe .\dist\CapNhatTKB\
 copy chromedriver.exe .\dist\CapNhatTKB\
@@ -10,3 +10,4 @@ copy PicturesConfiguation.json .\dist\CapNhatTKB\
 mkdir .\dist\CapNhatTKB\Backgrounds
 copy .\Backgrounds\original.png .\dist\CapNhatTKB\Backgrounds
 copy TKBSetting.cfg .\dist\CapNhatTKB\
+copy pageBackup.html .\dist\CapNhatTKB\

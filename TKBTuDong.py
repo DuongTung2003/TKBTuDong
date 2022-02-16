@@ -23,10 +23,12 @@ import urllib3
 import json
 from GoogleCalendar import Calendar
 import configparser
+import chromedriver_autoinstaller
 try:
     os.mkdir("./LogFiles/")
 except :
     pass
+
 format = "%(asctime)s: %(message)s"
 logname =  "./LogFiles/Log_"+str(datetime.now().month) +"_"+ str(datetime.now().day)+"_"+ str(datetime.now().hour)+"_"+ str(datetime.now().minute)+".log"
 logging.basicConfig(filename=logname,format=format, level=logging.INFO,datefmt="%H:%M:%S")
@@ -64,6 +66,7 @@ class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
+    CHROME_VERSION = '96.0.4664.110'
 
 #------------------------------------------------------------------------------------------------
 class Tiet(): #Tiet trong ngay
@@ -128,10 +131,13 @@ class Main():
             self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
             self.DataProcess()
         else:
+            chromepath = '.\chromedriver.exe'
+            if GlobalVariable.CHROME_VERSION != chromedriver_autoinstaller.get_chrome_version():
+                chromepath = chromedriver_autoinstaller.install(cwd=True)
             opts = Options()
             opts.headless = GlobalVariable.SELENIUM_HEADLESS
             #assert opts.headless  # Operating in headless mode  options=opts 
-            self.driver = webdriver.Chrome('.\chromedriver.exe',options=opts)  # Optional argument, if not specified will search path.
+            self.driver = webdriver.Chrome(chromepath,options=opts)  # Optional argument, if not specified will search path.
             #self.driver.execute(Command.SET_TIMEOUTS, {'ms': float(15 * 1000), 'type': 'page load'})
             self.Login()
             Console.Log("Dang nhap thanh cong")

@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['TKBTuDong.py'],
-             pathex=['D:\\2021-2022\\TKB\\TKBTuDong'],
+             pathex=[],
              binaries=[],
              datas=[],
              hiddenimports=[],

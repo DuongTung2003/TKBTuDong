@@ -16,6 +16,8 @@ import time
 class Calendar():
     def __init__(self, CREDENTIALS_FILE):
         self.CREDENTIALS_FILE = CREDENTIALS_FILE
+        self.AUTH_PROMPT_MESSAGE = "Bạn hãy đăng nhập vào tài khoản google muốn hiển thị sự kiện lịch"
+        self.WEB_SUCCESS_MESSAGE = "Đăng nhập thành công! Bạn có thể đóng cửa sổ này lại. \nPhần mềm vẫn đang trong giai đoạn phát triển nên để đảm bảo bảo mật bạn sẽ \nphải đăng nhập lại sau 7 ngày, xin lỗi vì sự bất tiện này. ❤"
     def get_calendar_service(self):
        SCOPES = ['https://www.googleapis.com/auth/calendar']
 
@@ -45,7 +47,7 @@ class Calendar():
 
            else:
                flow = InstalledAppFlow.from_client_secrets_file(self.CREDENTIALS_FILE, SCOPES)
-               creds = flow.run_local_server(port=0)
+               creds = flow.run_local_server(port=80,authorization_prompt_message=self.AUTH_PROMPT_MESSAGE,success_message=self.WEB_SUCCESS_MESSAGE)
 
            # Save the credentials for the next run
            with open('token.json', 'w') as token:

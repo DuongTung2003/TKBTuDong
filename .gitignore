@@ -14,6 +14,7 @@ __pycache__/
 LogFiles/
 build/
 dist/
+96/
 Example_files
 Example.html
 token.json
@@ -374,13 +375,10 @@ Mau.xlsx
 file.t
 TKBTuDong.exe
 GoogleCalendarIDs.txt
-pageBackup.html
-pageBackup.html
 test.txt
 *.html
 *.png
 pageBackup.html
 output.png
 bugtrace.txt
-pageBackup.html
-pageBackup.html
+
