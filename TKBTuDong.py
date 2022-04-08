@@ -39,9 +39,11 @@ class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----
     TG2 = ["6h45 - 7h35","7h40 - 8h30","8h35 - 9h25","9h30 - 10h20","10h25 - 11h15","11h20 - 12h10","13h00 - 13h50","13h55 - 14h45","14h50 - 15h40","15h45 - 16h35","16h40 - 17h30","17h35 - 18h25"]
 
     FORCE_INTERNET_OFF = False
+    FORCE_SELENIUM_OFF = False
     KeyFiles = "UserKey.enc"
     UserDataFile = "UserData.enc"
     BackGroundFiles = "./Backgrounds/"
+    Riggedbackground = ""
     GoogleCalendarIDsFile = "GoogleCalendarIDs.txt"
     Font = "calibril.ttf"
     GC_delete_after = 2
@@ -66,7 +68,7 @@ class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
-    CHROME_VERSION = '96.0.4664.110'
+    
 
 #------------------------------------------------------------------------------------------------
 class Tiet(): #Tiet trong ngay
@@ -121,45 +123,53 @@ class Main():
         self.UserID = ""
         self.UserPassword = ""
         self.GetUserData()
-        try:
-            http = urllib3.PoolManager()
-            r = http.request('GET',GlobalVariable.LoginURL )
-        except: 
-            Console.Error("Can't connect to internet")
+        self.StartupMode()
+        if GlobalVariable.FORCE_SELENIUM_OFF == False:
+            try:
+                http = urllib3.PoolManager()
+                r = http.request('GET',GlobalVariable.LoginURL )
+            except: 
+                Console.Error("Can't connect to internet")
+                self.PageSource = codecs.open("./pageBackup.html","r","utf-8").read()
+                GlobalVariable.internet_connected = False
+                self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
+                self.DataProcess()
+            else:
+           
+                try:
+                    if not 'chromedriver.exe' in  os.listdir("./"+str(chromedriver_autoinstaller.get_chrome_version())[:2]+"/"):
+                        chromepath = chromedriver_autoinstaller.install(cwd=True)
+                    else:
+                         chromepath = "./"+str(chromedriver_autoinstaller.get_chrome_version())[:2]+"/chromedriver.exe"
+                except:
+                    Console.Error("Ban phai cai dat google chrome de co the su dung phan mem nay!")
+                    input()
+                opts = Options()
+                opts.headless = GlobalVariable.SELENIUM_HEADLESS
+                #assert opts.headless  # Operating in headless mode  options=opts 
+                self.driver = webdriver.Chrome(chromepath,options=opts)  # Optional argument, if not specified will search path.
+                #self.driver.execute(Command.SET_TIMEOUTS, {'ms': float(15 * 1000), 'type': 'page load'})
+                self.Login()
+                Console.Log("Dang nhap thanh cong")
+                if GlobalVariable.UserData_check == False:
+                    if input("Ban co muon luu ten dang nhap va mat khau? y/n ").lower() == "y":
+                        self.SaveUserData()
+                self.driver.get(GlobalVariable.LichHocURL)
+                GlobalVariable.internet_connected = True if GlobalVariable.FORCE_INTERNET_OFF == False else False
+                sleep(1)
+                self.PageSource = self.driver.page_source
+                
+
+                self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
+                with codecs.open("pageBackup.html","w+","utf-8") as f:
+                    f.write(str(self.PageSource))
+                    f.close()
+                self.DataProcess()
+        else:
             self.PageSource = codecs.open("./pageBackup.html","r","utf-8").read()
             GlobalVariable.internet_connected = False
             self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
             self.DataProcess()
-        else:
-            chromepath = '.\chromedriver.exe'
-            try:
-                if GlobalVariable.CHROME_VERSION != chromedriver_autoinstaller.get_chrome_version():
-                    chromepath = chromedriver_autoinstaller.install(cwd=True)
-            except:
-                Console.Error("Ban phai cai dat google chrome de co the su dung phan mem nay!")
-                input()
-            opts = Options()
-            opts.headless = GlobalVariable.SELENIUM_HEADLESS
-            #assert opts.headless  # Operating in headless mode  options=opts 
-            self.driver = webdriver.Chrome(chromepath,options=opts)  # Optional argument, if not specified will search path.
-            #self.driver.execute(Command.SET_TIMEOUTS, {'ms': float(15 * 1000), 'type': 'page load'})
-            self.Login()
-            Console.Log("Dang nhap thanh cong")
-            if GlobalVariable.UserData_check == False:
-                if input("Ban co muon luu ten dang nhap va mat khau? y/n ").lower() == "y":
-                    self.SaveUserData()
-            self.driver.get(GlobalVariable.LichHocURL)
-            GlobalVariable.internet_connected = True if GlobalVariable.FORCE_INTERNET_OFF == False else False
-            sleep(1)
-            self.PageSource = self.driver.page_source
-                
-
-            self.DataTable = pd.read_html(self.PageSource,attrs={'id':'grd'})[0]
-            with codecs.open("pageBackup.html","w+","utf-8") as f:
-                f.write(str(self.PageSource))
-                f.close()
-            self.DataProcess()
-
                 
         Console.Log("Lay thong tin thanh cong")
         Console.Log(self.DataTable)
@@ -289,7 +299,7 @@ class Main():
                                  tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
                              else:
                                  tenLOP = "Online"
-                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             desc = self.DataTable['Tên lớp tín chỉ'][self.DanhSachTiet[thu][tiet]] + (" Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
                              if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
 
                                  result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
@@ -318,7 +328,7 @@ class Main():
                                  tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
                              else:
                                  tenLOP = "Online"
-                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and  tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             desc = self.DataTable['Tên lớp tín chỉ'][self.DanhSachTiet[thu][tiet]] + (" Giáo viên: "+ tenGV if tenGV != "" and  tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
                              if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
                                  result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,start_t.isoformat(),end_t.isoformat(),tenGV,tenLOP)
                                  Console.Log("created event")
@@ -337,7 +347,7 @@ class Main():
                                  tenLOP = ' '.join(self.unique_list(self.DataTable['Phòng học'][self.DanhSachTiet[thu][tiet]].split(" ")))
                              else:
                                  tenLOP = "Online"
-                             desc = "" + ("Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
+                             desc = self.DataTable['Tên lớp tín chỉ'][self.DanhSachTiet[thu][tiet]] + (" Giáo viên: "+ tenGV if tenGV != "" and tenGV != ' ' else "") + (" Lớp học: "+ tenLOP if tenLOP != "" and tenLOP != ' ' else "")
                              if ((gg_event_range[0].astimezone().isoformat()  in jsonRead.values()) == False):
 
                                  result_id,result_sum,result_start,result_end = Calendar(GlobalVariable.CREDENTIALS_FILE).CreateEvent(self.DataTable['Tên học phần'][self.DanhSachTiet[thu][tiet]],desc,gg_event_range[0].isoformat(),gg_event_range[1].isoformat(),tenGV,tenLOP)
@@ -407,9 +417,9 @@ class Main():
             Console.Log(ThuTrongTuan) 
     def GetIMG(self):
         BGFiles_name  = os.listdir(GlobalVariable.BackGroundFiles)
-        self.BGFile = random.choice(BGFiles_name)
+        self.BGFile = random.choice(BGFiles_name) if GlobalVariable.Riggedbackground == "" else GlobalVariable.Riggedbackground
         try: 
-            configFile = open("PicturesConfiguation.json",'r')
+            configFile = open("PicturesConfiguation.json",'r+')
             configData = json.load(configFile)
             configFile.close()
         except:
@@ -459,6 +469,9 @@ class Main():
                self.CreateTable()
                Console.Log(configData[BGFile_])
                if (input("Confirm y/n?  ")) == "y":
+                   configFile = open("PicturesConfiguation.json",'w+')
+                   json.dump(configData,configFile )
+                   configFile.close()
                    break
         GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
         GlobalVariable.TableColors = configData[self.BGFile]["Colors"]
@@ -466,6 +479,31 @@ class Main():
         json.dump(configData,configFile )
         configFile.close()
         self.CreateTable()
+    def StartupMode(self):
+        if "StartupVar.dat" not in os.listdir("./"):
+            with open("StartupVar.dat","w+") as file:
+                file.write(datetime.now().isoformat())
+                file.close();
+        else:
+            with open("StartupVar.dat","r") as file:
+                lastStartup = datetime.fromisoformat(file.read())
+                file.close()
+                file = open("StartupVar.dat","w")
+                file.write(datetime.now().isoformat())
+                file.close()
+                if datetime.now() - lastStartup < timedelta(0,3600):
+                    
+                    if input("Thay doi hinh nen? y/n >").lower() == "y":
+                        listofBackground = enumerate(os.listdir(GlobalVariable.BackGroundFiles),1)
+                        
+                        Console.Log("Danh sach hinh nen hien co: ")
+                        for i,v in listofBackground:
+                            Console.Log(i,": ",v)
+                        Console.Log("Chon hinh nen muon thay doi: ")
+                        GlobalVariable.Riggedbackground =os.listdir(GlobalVariable.BackGroundFiles)[int(input())-1]
+                    GlobalVariable.FORCE_INTERNET_OFF = True
+                    GlobalVariable.FORCE_SELENIUM_OFF = True
+                
     def CreateTable(self):
         baseSample = Image.open((GlobalVariable.BackGroundFiles + self.BGFile))
         BG = baseSample.convert("RGBA")
