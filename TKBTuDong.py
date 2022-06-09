@@ -1,5 +1,5 @@
 
-# CREDIT: DUONG TUNG AI&RB-K15 PKA
+# CRE: DUONG TUNG AI&RB-K15 PKA
 
 
 
@@ -116,7 +116,7 @@ class Console():
         logging.error("ERROR "+msg)
         print("ERROR "+msg)
 
-class Main():
+class TKB():
     
     def __init__(self):
         getConfiguration()
@@ -501,8 +501,8 @@ class Main():
                             Console.Log(i,": ",v)
                         Console.Log("Chon hinh nen muon thay doi: ")
                         GlobalVariable.Riggedbackground =os.listdir(GlobalVariable.BackGroundFiles)[int(input())-1]
-                    GlobalVariable.FORCE_INTERNET_OFF = True
-                    GlobalVariable.FORCE_SELENIUM_OFF = True
+                        GlobalVariable.FORCE_INTERNET_OFF = True
+                        GlobalVariable.FORCE_SELENIUM_OFF = True
                 
     def CreateTable(self):
         baseSample = Image.open((GlobalVariable.BackGroundFiles + self.BGFile))
@@ -594,6 +594,5 @@ class Main():
             img_path = os.getcwd()+GlobalVariable.ABSOLUTE_OUTPUT_PATH
             ctypes.windll.user32.SystemParametersInfoW(20,0,img_path,1)
         
-
-
-Main()
+if __name__ == "__main__":
+    TKB()
