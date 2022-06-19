@@ -11,11 +11,9 @@ from selenium.webdriver.support.ui import Select
 import logging
 from datetime import datetime,timedelta,time,date
 import os
-import math
 import random
 from PIL import Image, ImageDraw, ImageFont
 import pandas as pd
-import base64
 import codecs
 from cryptography.fernet import Fernet
 from time import sleep
@@ -68,7 +66,7 @@ class GlobalVariable(): #---------------------------CHINH SUA CAI DAT O DAY-----
     LineThickness = 2
     CREDENTIALS_FILE = './client_secret_431692909921-5oud82jo99c4sfne77c96t2livor8rvd.apps.googleusercontent.com.json'
     internet_connected = True
-    
+    wallpaper_engine_path = None
 
 #------------------------------------------------------------------------------------------------
 class Tiet(): #Tiet trong ngay
@@ -96,6 +94,14 @@ def getConfiguration():
         Console.Log("Cai dat thanh cong")
     except:
         Console.Error("Cai dat that bai!")
+        Console.Error("Kiem tra lai TKBSetting.cfg")
+    finally:
+        wall_path = config['Cai dat chung']['WallpaperEngine']
+        #Check if path is valid
+        if os.path.exists(wall_path):
+            GlobalVariable.wallpaper_engine_path = wall_path
+        else:
+             GlobalVariable.wallpaper_engine_path = None
 class Console():
     def Log(*arg):
         msg = ""
@@ -180,7 +186,7 @@ class TKB():
         self.GetIMG()
         
         Console.Log("Hoan tat")
-        
+        exit()
 
 
 
@@ -428,57 +434,112 @@ class TKB():
         for BGFile_ in BGFiles_name:
            if configData.get(BGFile_,"") == "":
              configured =False
-             while True:
-               Console.Error("Ảnh ",BGFile_,"chưa được cài đặt vị trí TKB,xin hãy nhập theo dạng x,y")
-               x,y = None,None
-               configData[BGFile_] = {}
-               while x== None and y == None:
-                   inp = input("\n>")
-                   try:
-                       x=int(inp.split(",")[0])
-                       y=int(inp.split(",")[1])
-                   except:
-                       Console.Error("Định dạng không hợp lệ")
-               Console.Log("Thêm thành công với x=",x,",y=",y,"vào ảnh",BGFile_)
-               configData[BGFile_]["Vi tri"] = [x,y]
-               rgba = [None,None,None,None]
-               Console.Log("Nhập màu chữ muốn hiển thị với dạng r,g,b,a")
-               while None in rgba:
-                    inp = input("\n>")
-                    if inp == "":
+             if BGFile_.split('.')[-1] in ['jpg','png','jpeg']:
+                while True:
+                    Console.Error("Ảnh ",BGFile_,"chưa được cài đặt vị trí TKB,xin hãy nhập theo dạng x,y")
+                    x,y = None,None
+                    configData[BGFile_] = {}
+                    while x== None and y == None:
+                        inp = input("\n>")
+                        try:
+                            x=int(inp.split(",")[0])
+                            y=int(inp.split(",")[1])
+                        except:
+                            Console.Error("Định dạng không hợp lệ")
+                    Console.Log("Thêm thành công với x=",x,",y=",y,"vào ảnh",BGFile_)
+                    configData[BGFile_]["Vi tri"] = [x,y]
+                    rgba = [None,None,None,None]
+                    Console.Log("Nhập màu chữ muốn hiển thị với dạng r,g,b,a")
+                    while None in rgba:
+                            inp = input("\n>")
+                            if inp == "":
+                                break
+                            try:
+                                rgba= [int(userinp) for userinp in inp.split(",")]
+                                GlobalVariable.TableColors["Text"] = rgba
+                            except:
+                                Console.Error("Định dạng không hợp lệ") 
+                    
+                    if inp != "":
+                        for cor in GlobalVariable.TableColors:
+                            if cor != "Text":
+                                Console.Log("Nhập màu cho",cor,"với định dạng HEX (vd:#ffe600)")
+                                inp = input(">")
+                                if inp == "":
+                                    Console.Log("Bỏ qua")
+                                elif inp[0]=="#":
+                                    GlobalVariable.TableColors[cor] = inp
+                    configData[BGFile_]["Colors"] = dict(GlobalVariable.TableColors)
+                    
+                    GlobalVariable.Cord = [configData[BGFile_]["Vi tri"][0],configData[BGFile_]["Vi tri"][1]]
+                    self.BGFile = BGFile_
+                    self.CreateTable()
+                    Console.Log(configData[BGFile_])
+                    if (input("Confirm y/n?  ")) == "y":
+                        configFile = open("PicturesConfiguation.json",'w+')
+                        json.dump(configData,configFile )
+                        configFile.close()
                         break
-                    try:
-                        rgba= [int(userinp) for userinp in inp.split(",")]
-                        GlobalVariable.TableColors["Text"] = rgba
-                    except:
-                        Console.Error("Định dạng không hợp lệ") 
-               
-               if inp != "":
-                for cor in GlobalVariable.TableColors:
-                   if cor != "Text":
-                       Console.Log("Nhập màu cho",cor,"với định dạng HEX (vd:#ffe600)")
-                       inp = input(">")
-                       if inp == "":
-                           Console.Log("Bỏ qua")
-                       elif inp[0]=="#":
-                           GlobalVariable.TableColors[cor] = inp
-               configData[BGFile_]["Colors"] = dict(GlobalVariable.TableColors)
-               
-               GlobalVariable.Cord = [configData[BGFile_]["Vi tri"][0],configData[BGFile_]["Vi tri"][1]]
-               self.BGFile = BGFile_
-               self.CreateTable()
-               Console.Log(configData[BGFile_])
-               if (input("Confirm y/n?  ")) == "y":
-                   configFile = open("PicturesConfiguation.json",'w+')
-                   json.dump(configData,configFile )
-                   configFile.close()
-                   break
-        GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
-        GlobalVariable.TableColors = configData[self.BGFile]["Colors"]
-        configFile = open("PicturesConfiguation.json",'w+')
-        json.dump(configData,configFile )
-        configFile.close()
-        self.CreateTable()
+             elif BGFile_.split('.')[-1] == 'vif':
+                Console.Error("Video ",BGFile_.split('.')[:-1],"chưa được cài đặt path và config")
+                while True:
+                    configData[BGFile_] = {}
+                    ip_path = input("Nhập đường dẫn tới .json của video: ")
+                    if ip_path == "" or os.path.exists(ip_path) == False:
+                        Console.Error("Đường dẫn không hợp lệ")
+                        continue
+                    #if ip_path not ends with \project.json then add it
+                    if ip_path[-1] == "\\" or ip_path[-1] == "/" or ip_path[-5:] != ".json":
+                        ip_path = os.path.join(ip_path,"project.json")
+                        #Check if file exists
+                        if os.path.exists(ip_path) == False:
+                            continue
+                        
+                    conf = None
+                    with open(os.path.join(GlobalVariable.BackGroundFiles,BGFile_),'r+') as cfgFile:
+                        #check if file is not empty
+                        if cfgFile.read() == "":
+                            conf = input("Nhập config: ")
+                            if conf == "":
+                                Console.Log("Bỏ qua")
+                            else:
+                                cfgFile.write(conf)
+                    self.BGFile = BGFile_
+                    configData[BGFile_]["path"] = ip_path
+                    Console.Log("Path",ip_path)
+                    Console.Log("Config",conf)
+                    if (input("Confirm y/n?  ")) == "y":
+                        configFile = open("PicturesConfiguation.json",'w+')
+                        json.dump(configData,configFile )
+                        configFile.close()
+                        break
+        if self.BGFile.split('.')[-1] in ['jpg','png','jpeg']:
+            GlobalVariable.Cord = [configData[self.BGFile]["Vi tri"][0],configData[self.BGFile]["Vi tri"][1]]
+            GlobalVariable.TableColors = configData[self.BGFile]["Colors"]
+            configFile = open("PicturesConfiguation.json",'w+')
+            json.dump(configData,configFile )
+            configFile.close()
+            self.CreateTable()
+        elif self.BGFile.split('.')[-1] == 'vif':
+            with open(os.path.join(GlobalVariable.BackGroundFiles,self.BGFile),'r+') as cfgFile:
+                self.PlayVideo(configData[self.BGFile]['path'],str(cfgFile.read()))
+                
+    def PlayVideo(self,path,config):
+        exe_path = str(GlobalVariable.wallpaper_engine_path).replace(GlobalVariable.wallpaper_engine_path.split('\\')[-1],'')
+        command = GlobalVariable.wallpaper_engine_path.split('\\')[-1]
+        var = ' -control openWallpaper -file \"'+path+'\"'
+        os.chdir(exe_path)
+        os.system(command+var)
+        sleep(0.5)
+        os.system(command+' -control mute')
+        sleep(0.5)
+        if config != "":
+            config = str(config).replace("\n","")
+            var =  ' -control applyProperties -properties RAW~('+config+")~END"
+            os.system(command+var)
+        GlobalVariable.EnableBG = False
+        sleep(0.5)
+   
     def StartupMode(self):
         if "StartupVar.dat" not in os.listdir("./"):
             with open("StartupVar.dat","w+") as file:
@@ -498,7 +559,7 @@ class TKB():
                         
                         Console.Log("Danh sach hinh nen hien co: ")
                         for i,v in listofBackground:
-                            Console.Log(i,": ",v)
+                            Console.Log('%2d' % i,":","ANIMATED" if v.split('.')[-1] == 'vif' else 'IMAGE   ',v.split('.')[0])
                         Console.Log("Chon hinh nen muon thay doi: ")
                         GlobalVariable.Riggedbackground =os.listdir(GlobalVariable.BackGroundFiles)[int(input())-1]
                         GlobalVariable.FORCE_INTERNET_OFF = True
